@@ -1,3 +1,4 @@
+import vlc
 import threading
 import pyttsx3
 import pywhatkit
@@ -7,7 +8,7 @@ import pyjokes
 import random
 import speech_recognition as sr
 
-import video_player
+import GUI
 
 sea = ["https://www.youtube.com/watch?v=JHAcW9cU0mY",
        "https://www.youtube.com/watch?v=-Tm4H4CrKT0",
@@ -74,8 +75,7 @@ class SR(threading.Thread):
             elif ("mountain" in place):
                 link = random.choice(mountain)
 
-            video = video_player.Player().start()
-            # pywhatkit.playonyt(link)
+            GUI.media_player = vlc.MediaPlayer("sim/prova.mkv")
             return
         if 'play' and 'on youtube' in command:
             print('--------------- 1 -----------')

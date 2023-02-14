@@ -1,10 +1,8 @@
-import cv2
 import vlc
 import threading
 from tkinter import *
 
 import voice_recognition
-
 
 class GUI(threading.Thread):
     def __init__(self):
@@ -15,33 +13,35 @@ class GUI(threading.Thread):
         self.start_img = None
         self.pause_img = None
 
-    def load_video(self):
-        self.status = "play"
-        print("LOAD " + self.status)
-        self.media_player = vlc.MediaPlayer("sim/prova.mkv")
-        self.media_player.play()
-
     def speedup(self):
         self.media_player.set_rate(2)
 
     def slowdown(self):
         self.media_player.set_rate(0.5)
 
+    def load_video(self, video):
+        self.status = "play"
+        print("LOAD " + self.status)#
+        self.media_player = vlc.MediaPlayer(video)
+        self.media_player.play()
+        self.play_pause_btn.config(image=self.pause_img)
+
     def play_pause(self):
         """ pauses and plays """
-        if self.status == "":
-            print(" - " + self.status)
-            self.load_video()
-            self.play_pause_btn.config(image=self.pause_img)
         if self.status == "pause":
-            print("IF PAUSE " + self.status)
+            print("IF PAUSE ")
+            self.media_player.play()
             self.status = "play"
-            self.play_pause_btn.config(image=self.start_img)
+            print("SET play")
+            self.play_pause_btn.config(image=self.pause_img)
+            return
         if self.status == "play":
-            print("IF PLAY " + self.status)
+            print("IF PLAY ")
             self.media_player.pause()
             self.status = "pause"
-            self.play_pause_btn.config(image=self.pause_img)
+            print("SET pause")
+            self.play_pause_btn.config(image=self.start_img)
+            return
 
     def run(self):
 
@@ -121,7 +121,7 @@ class GUI(threading.Thread):
                           command=self.speedup)
         load_img = PhotoImage(file=f"img/load.png")
         load_btn = Button(master=btm_frame, image=load_img, borderwidth=0, highlightthickness=0, relief="flat",
-                          command=self.load_video)
+                          command=lambda: self.load_video("sim/prova.mkv"))
         voice_img = PhotoImage(file=f"img/003-microphone.png")
         voice_btn = Button(btm_frame, image=voice_img, borderwidth=0, highlightthickness=0, relief="flat",
                            command=lambda: voice_recognition.SR().start())
