@@ -2,4 +2,4 @@
 
 pip install tkinter
 pip install opencv-python
-pip install PyAutoGUI
+pip install python-vlc

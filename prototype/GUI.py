@@ -2,41 +2,29 @@ import vlc
 import threading
 from tkinter import *
 
+import video_player
 import voice_recognition
+
 
 class GUI(threading.Thread):
     def __init__(self):
         super().__init__()
-        self.status = ""
         self.play_pause_btn = None
-        self.media_player = None
         self.start_img = None
         self.pause_img = None
-
-    def speedup(self):
-        self.media_player.set_rate(2)
-
-    def slowdown(self):
-        self.media_player.set_rate(0.5)
-
-    def load_video(self, video):
-        self.status = "play"
-        self.media_player = vlc.MediaPlayer(video)
-        self.media_player.play()
-        self.play_pause_btn.config(image=self.pause_img)
+        self.vr = None
+        self.voice_feedback = None
+        self.video = video_player.Simulation()
+        self.video.start()
+        self.mediaplayer = vlc.MediaPlayer()
 
     def play_pause(self):
         """ pauses and plays """
-        if self.status == "pause":
-            self.media_player.play()
-            self.status = "play"
-            self.play_pause_btn.config(image=self.pause_img)
-            return
-        if self.status == "play":
-            self.media_player.pause()
-            self.status = "pause"
+        self.video.play_pause()
+        if self.play_pause_btn.cget['image'] == self.pause_img:
             self.play_pause_btn.config(image=self.start_img)
-            return
+        else:
+            self.play_pause_btn.config(image=self.pause_img)
 
     def run(self):
 
@@ -123,8 +111,8 @@ class GUI(threading.Thread):
             command=lambda: self.video.load_video(radioSimulationValue, radioTemperatureValue, radioScentValue))
         buttonConfirm.grid(row=6, column=6)
 
-        simulation_lb = Label(center_frame, background='cyan')
-        simulation_lb.grid(row=0, column=0, columnspan=5, sticky=NSEW)
+        self.voice_feedback = Label(center_frame, background='cyan')
+        self.voice_feedback.grid(row=0, column=0, columnspan=5, sticky=NSEW)
 
         # vvideoplayer = TkinterVideo(master=center_frame, keep_aspect=True)
         # vvideoplayer.load(r"sim/sea1.mp4")
@@ -143,16 +131,16 @@ class GUI(threading.Thread):
                                      command=lambda: threading.Thread(target=self.play_pause).start())
         slow_img = PhotoImage(file=f"img/slow.png")
         slow_btn = Button(master=btm_frame, image=slow_img, borderwidth=0, relief="flat",
-                          command=self.slowdown)
+                          command=self.video.slowdown)
         fast_img = PhotoImage(file=f"img/fast.png")
         fast_btn = Button(master=btm_frame, image=fast_img, borderwidth=0, relief="flat",
-                          command=self.speedup)
+                          command=self.video.speedup)
         load_img = PhotoImage(file=f"img/load.png")
         load_btn = Button(master=btm_frame, image=load_img, borderwidth=0, highlightthickness=0, relief="flat",
-                          command=lambda: self.load_video("sim/prova.mkv"))
+                          command=lambda: self.video.load_video("sim/prova.mkv"))
         voice_img = PhotoImage(file=f"img/003-microphone.png")
         voice_btn = Button(btm_frame, image=voice_img, borderwidth=0, highlightthickness=0, relief="flat",
-                           command=lambda: voice_recognition.SR().start())
+                           command=lambda: self.enable_voice_control)
 
         load_btn.grid(row=0, column=0, sticky=EW)
         slow_btn.grid(row=0, column=1, sticky=EW)
@@ -166,6 +154,9 @@ class GUI(threading.Thread):
         btm_frame.grid(row=2, sticky=EW)
 
         root.mainloop()
+
+    def enable_voice_control(self):
+        self.vr = voice_recognition.SR().start()
 
 
 def main():  # stuff to run always here such as class/def

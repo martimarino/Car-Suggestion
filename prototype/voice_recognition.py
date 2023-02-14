@@ -72,10 +72,11 @@ class SR(threading.Thread):
             link = ''
             if ("sea" or "beach") in place:
                 link = random.choice(sea)
-            elif ("mountain" in place):
+            elif "mountain" in place:
                 link = random.choice(mountain)
 
             GUI.media_player = vlc.MediaPlayer("sim/prova.mkv")
+
             return
         if 'play' and 'on youtube' in command:
             print('--------------- 1 -----------')
@@ -110,8 +111,12 @@ class SR(threading.Thread):
             print(joke)
             self.narrate(joke)
             return
-        if ("bye" in command):
+        if "bye" in command:
             self.narrate("Bye bye")
             quit()
         else:
             return
+
+    def double_out(self, text):
+        print(text)
+        GUI.voice_feedback
