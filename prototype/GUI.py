@@ -89,6 +89,39 @@ class GUI(threading.Thread):
         center_frame.rowconfigure(0, weight=1)
         center_frame.columnconfigure(0, weight=3)
         center_frame.columnconfigure(1, weight=1)
+        center_frame.rowconfigure(1, weight=1)
+        center_frame.rowconfigure(2, weight=1)
+        center_frame.rowconfigure(3, weight=1)
+        center_frame.rowconfigure(4, weight=1)
+        center_frame.rowconfigure(5, weight=1)
+
+        radioSimulationValue = StringVar(value="Sea")
+
+        Label(center_frame, text="Type of simulation").grid(row=0, column=5)
+        Radiobutton(center_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=5)
+        Radiobutton(center_frame, text='Mountain', value='mountain', variable=radioSimulationValue).grid(row=2, column=5)
+        Radiobutton(center_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=5)
+        Radiobutton(center_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=5)
+        Radiobutton(center_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=5)
+
+        radioTemperatureValue = StringVar(value="Medium")
+        labelTemp = Label(center_frame, text="Temperature").grid(row=0, column=6)
+        rt1 = Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=6)
+        rt2 = Radiobutton(center_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2, column=6)
+        rt3 = Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=6)
+
+        radioScentValue = StringVar(value="Peaches")
+        labelSim = Label(center_frame, text="Scent").grid(row=0, column=7)
+        rsc1 = Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioScentValue).grid(row=1, column=7)
+        rsc2 = Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioScentValue).grid(row=2,column=7)
+        rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioScentValue).grid(row=3, column=7)
+        rsc4 = Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioScentValue).grid(row=4, column=7)
+
+        buttonConfirm = Button(
+            center_frame,
+            text="Confirm selection",
+            command=lambda: self.video.load_video(radioSimulationValue, radioTemperatureValue, radioScentValue))
+        buttonConfirm.grid(row=6, column=6)
 
         simulation_lb = Label(center_frame, background='cyan')
         simulation_lb.grid(row=0, column=0, columnspan=5, sticky=NSEW)
