@@ -1,18 +1,17 @@
 import threading
-
-import speech_recognition as sr
 import pyttsx3
 import pywhatkit
 import datetime
 import wikipedia
 import pyjokes
 import random
+import speech_recognition as sr
 
 import video_player
 
 sea = ["https://www.youtube.com/watch?v=JHAcW9cU0mY",
-        "https://www.youtube.com/watch?v=-Tm4H4CrKT0",
-        "https://www.youtube.com/watch?v=wFN_QaTw1Bo"]
+       "https://www.youtube.com/watch?v=-Tm4H4CrKT0",
+       "https://www.youtube.com/watch?v=wFN_QaTw1Bo"]
 mountain = ["https://www.youtube.com/watch?v=eNhPu4Yf4s8",
             "https://www.youtube.com/watch?v=cJpyQ9f1pQU&list=RDCMUCoTedxE3WwpDUGW8P6a3T6Q&index=5",
             "https://www.youtube.com/watch?v=cJHGKSz_CDw&list=RDCMUCoTedxE3WwpDUGW8P6a3T6Q&index=15"]
@@ -21,27 +20,24 @@ mountain = ["https://www.youtube.com/watch?v=eNhPu4Yf4s8",
 class SR(threading.Thread):
 
     def run(self):
-        while (True):
+        while True:
             self.run_patel()
-
 
     def __init__(self):
         super().__init__()
         listener = sr.Recognizer()
         self.engine = pyttsx3.init()
         voices = self.engine.getProperty('voices')
-        self.engine.setProperty('voice', voices[1].id) # This line adds female voice with indian accent. had to add the indian(english) voice to microsoft, export it from registry detector and modify the file by opening it with text editor.
+        self.engine.setProperty('voice', voices[1].id)  # This line adds female voice with indian accent.
 
         self.engine.say("Hi!")
         self.engine.say("How can I help?")
         self.engine.runAndWait()
 
-
     def narrate(self, text):
         """This function narrates the commands that was taken."""
         self.engine.say(text)
         self.engine.runAndWait()
-
 
     def take_command(self):
         print('--------------- take command -----------')
@@ -61,7 +57,6 @@ class SR(threading.Thread):
             self.run_patel()
         return command.lower()
 
-
     def run_patel(self):
         """invokes patel and takes command, identifies specific words and makes patel do things"""
         command = self.take_command()
@@ -78,8 +73,6 @@ class SR(threading.Thread):
                 link = random.choice(sea)
             elif ("mountain" in place):
                 link = random.choice(mountain)
-
-
 
             video = video_player.Player().start()
             # pywhatkit.playonyt(link)

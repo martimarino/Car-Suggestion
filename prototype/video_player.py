@@ -1,64 +1,59 @@
 import threading
 import cv2
+import numpy as np
 from PIL import ImageTk, Image
-import gui
 
 class Player(threading.Thread):
 
-    def __init__(self):
+    def __init__(self, path):
         super().__init__()
-        self.frameTime = 1  # time of each frame in ms, you can add logic to change this value.
-        self.frame = None
-        self.cap = None
+        self.cap = cv2.VideoCapture(path)
 
-    def accelerate(self, speed):
-        cap = cv2.VideoCapture('video.mp4')
-        i = 0  # frame counter
-        frameTime = 1  # time of each frame in ms, you can add logic to change this value.
-        while (cap.isOpened()):
-            ret = cap.grab()  # grab frame
-            i = i + 1  # increment counter
-            if i % 3 == 0:  # display only one third of the frames, you can change this parameter according to your needs
-                ret, frame = cap.retrieve()  # decode frame
-                cv2.imshow('frame', frame)
-                if cv2.waitKey(frameTime) & 0xFF == ord('q'):
-                    break
-        cap.release()
-        cv2.destroyAllWindows()
 
-    def decelerate(self):
-        cap = cv2.VideoCapture('video.mp4')
-        frameTime = 10  # time of each frame in ms, you can add logic to change this value.
-        while (cap.isOpened()):
-            ret, frame = cap.read()
-            cv2.imshow('frame', frame)
-            if cv2.waitKey(frameTime) & 0xFF == ord('q'):
-                break
-        cap.release()
-        cv2.destroyAllWindows()
+    # def accelerate(self, speed):
+    #     i = 0  # frame counter
+    #     frameTime = 1  # time of each frame in ms, you can add logic to change this value.
+    #     while (cap.isOpened()):
+    #         ret = cap.grab()  # grab frame
+    #         i = i + 1  # increment counter
+    #         if i % 3 == 0:  # display only one third of the frames, you can change this parameter according to your needs
+    #             ret, frame = cap.retrieve()  # decode frame
+    #             cv2.imshow('frame', frame)
+    #             if cv2.waitKey(frameTime) & 0xFF == ord('q'):
+    #                 break
+    #     cap.release()
+    #     cv2.destroyAllWindows()
+    #
+    # def decelerate(self):
+
 
 
     def run(self):
-        self.cap = cv2.VideoCapture('samplevideo.mp4')
-        self.video_stream()
-        # while cap.isOpened():
-        #     ret, main.videocv = cap.read()
-        #     # if frame is read correctly ret is True
-        #     if not ret:
-        #         print("Can't receive frame (stream end?). Exiting ...")
-        #         break
-        #     cv2.imshow('frame', main.videocv)
-        #     if cv2.waitKey(1) == ord('q'):
-        #         break
-        # cap.release()
-        # cv2.destroyAllWindows()
 
+        # Check if camera opened successfully
+        if (self.cap.isOpened() == False):
+            print("Error opening video file")
 
-    def video_stream(self):
-        _, frame = self.cap.read()
-        cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-        img = Image.fromarray(cv2image)
-        imgtk = ImageTk.PhotoImage(image=img)
-        gui.simulation.imgtk = imgtk
-        gui.simulation.configure(image=imgtk)
-        gui.simulation.after(1, self.video_stream)
+        # Read until video is completed
+        while (self.cap.isOpened()):
+
+            # Capture frame-by-frame
+            ret, frame = self.cap.read()
+            if ret == True:
+                # Display the resulting frame
+                cv2.imshow('Frame', frame)
+
+                # Press Q on keyboard to exit
+                if cv2.waitKey(25) & 0xFF == ord('q'):
+                    break
+
+            # Break the loop
+            else:
+                break
+
+        # When everything done, release
+        # the video capture object
+        self.cap.release()
+
+        # Closes all the frames
+        cv2.destroyAllWindows()
