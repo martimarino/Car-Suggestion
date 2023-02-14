@@ -21,7 +21,6 @@ class GUI(threading.Thread):
 
     def load_video(self, video):
         self.status = "play"
-        print("LOAD " + self.status)#
         self.media_player = vlc.MediaPlayer(video)
         self.media_player.play()
         self.play_pause_btn.config(image=self.pause_img)
@@ -29,17 +28,13 @@ class GUI(threading.Thread):
     def play_pause(self):
         """ pauses and plays """
         if self.status == "pause":
-            print("IF PAUSE ")
             self.media_player.play()
             self.status = "play"
-            print("SET play")
             self.play_pause_btn.config(image=self.pause_img)
             return
         if self.status == "play":
-            print("IF PLAY ")
             self.media_player.pause()
             self.status = "pause"
-            print("SET pause")
             self.play_pause_btn.config(image=self.start_img)
             return
 
