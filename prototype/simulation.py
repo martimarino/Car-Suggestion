@@ -1,5 +1,6 @@
 import fnmatch
 import os
+from idlelib import window
 
 import vlc
 import threading
@@ -40,15 +41,13 @@ class Simulation (threading.Thread):
     def load_video(self, place, temperature, scent):
         self.status = "play"
         for file in os.listdir('sim'):
-            if fnmatch.fnmatch(file, place.get() + "_" + temperature.get() + "_" + scent.get() + ".*"):
-                self.media_player = vlc.MediaPlayer("./sim/" + file)
-            elif fnmatch.fnmatch(file, place.get() + "_" + temperature.get() + "_*" + ".*"):
-                self.media_player = vlc.MediaPlayer("./sim/" + file)
-            elif fnmatch.fnmatch(file, place.get() + "_*" + "_*" + ".*"):
+            print(file)
+            if place in file:
                 self.media_player = vlc.MediaPlayer("./sim/" + file)
             else:
                 self.media_player = vlc.MediaPlayer("./sim/prova.mkv")
 
+        self.media_player.video_set_mouse_input(True)
         self.media_player.play()
         
     def speedup(self):
