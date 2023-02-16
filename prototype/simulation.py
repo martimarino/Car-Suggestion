@@ -1,6 +1,5 @@
 import fnmatch
 import os
-from idlelib import window
 
 import vlc
 import threading
@@ -22,7 +21,7 @@ class Simulation(threading.Thread):
         self.scenario = None
         self.color_light = None
         self.status = ""
-        self.mediaplayer = vlc.MediaPlayer()
+        self.media_player = vlc.MediaPlayer()
 
     def choose_video(self):
         # .......
@@ -40,6 +39,7 @@ class Simulation(threading.Thread):
             return
 
     def load_video(self, place):
+        print(place)
         self.status = "play"
         for file in os.listdir('sim'):
             print(file)
@@ -48,7 +48,8 @@ class Simulation(threading.Thread):
             else:
                 self.media_player = vlc.MediaPlayer("./sim/prova.mkv")
 
-        self.media_player.video_set_mouse_input(True)
+        #self.media_player.video_set_mouse_input(True)
+        #self.media_player.video_set_key_input(True)
         self.media_player.play()
 
 

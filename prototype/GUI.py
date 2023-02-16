@@ -16,8 +16,11 @@ class GUI(threading.Thread):
         self.play_pause_btn = None
         self.pause_img = None
         self.start_img = None
+        self.temperature = None
+        self.lower_frame = None
         self.voice_feedback = None  # output
         self.sim = simulation.Simulation()
+        #self.sim.media_player.video_set_mouse_input(True)
         self.sim.start()
         self.command = comm
         self.vui = VUI.VUI(self.command)
@@ -57,6 +60,21 @@ class GUI(threading.Thread):
         else:
             self.play_pause_btn.config(image=self.pause_img)
 
+    def play_video(self, place, temperature, scent):
+
+        self.scent.config(text=scent.get())
+        self.speed.config(text="Medium")
+        print("temp: " + temperature.get())
+        if temperature.get() == "low":
+            print("LOW")
+            self.temperature.config(background="white")
+        elif temperature.get() == "medium":
+            print("MEDIUM")
+            self.temperature.config(background="yellow")
+        else:
+            print("HIGH")
+            self.temperature.config(background="red")
+        self.sim.load_video(place.get())
     def run(self):
 
         # Configure root params
@@ -114,7 +132,7 @@ class GUI(threading.Thread):
         center_frame.rowconfigure(4, weight=1)
         center_frame.rowconfigure(5, weight=1)
 
-        radioSimulationValue = StringVar(value="Sea")
+        radioSimulationValue = StringVar(value="sea")
 
         Label(center_frame, text="Type of simulation").grid(row=0, column=5)
         Radiobutton(center_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=5)
@@ -144,7 +162,7 @@ class GUI(threading.Thread):
         buttonConfirm = Button(
             center_frame,
             text="Confirm selection",
-            command=lambda: self.sim.load_video(radioSimulationValue.get()))
+            command=lambda: self.play_video(radioSimulationValue, radioTemperatureValue, radioScentValue))
         buttonConfirm.grid(row=6, column=6)
 
         self.voice_feedback = Label(center_frame, background='cyan')
@@ -174,8 +192,8 @@ class GUI(threading.Thread):
                            command=lambda: threading.Thread(target=self.vui.start()))
         consumer_btn = Button(btm_frame, image=voice_img, borderwidth=0, highlightthickness=0, relief="flat",
                            command = lambda: threading.Thread(target=self.consumer()).start())
-        threading.Thread(target=self.vui.start())
-        threading.Thread(target=self.consumer()).start()
+        #threading.Thread(target=self.vui.start())
+        #threading.Thread(target=self.consumer()).start()
 
 
         load_btn.grid(row=0, column=0, sticky=EW)
@@ -187,6 +205,8 @@ class GUI(threading.Thread):
         top_frame.grid(row=0, sticky=EW)
         center_frame.grid(row=1, sticky=NSEW)
         btm_frame.grid(row=2, sticky=EW)
+
+        self.temperature = btm_frame
 
         root.mainloop()
 
