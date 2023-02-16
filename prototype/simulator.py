@@ -53,8 +53,8 @@ class Simulation(threading.Thread):
             else:
                 self.media_player = vlc.MediaPlayer("./sim/prova.mkv")
 
-        self.media_player.video_set_mouse_input(True)
         self.media_player.play()
+        self.media_player.audio_set_volume(100)
 
     def speedup(self):
         self.media_player.set_rate(2)
@@ -165,6 +165,9 @@ class VUI(threading.Thread):
         if "bye" in command:
             self.narrate("Bye bye")
             quit()
+        if "stop" in command:
+            if not q.full():
+                q.put(["stop", "stop"])
         else:
             return
 
@@ -185,6 +188,8 @@ def consume_q(c):
         case "temperature":
             speed.config(text=c[1])
             q.task_done()
+        case "stop":
+            sim.media_player.stop()
 
 
 class Consumer(threading.Thread):
