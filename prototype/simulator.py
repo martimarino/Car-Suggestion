@@ -1,23 +1,27 @@
+import os
+import vlc
+import time
 import queue
-from tkinter import *
-import threading
+import pyjokes
 import pyttsx3
 import datetime
-import pyjokes
+import threading
+from tkinter import *
 import speech_recognition as sr
-import vlc
-import os
-import time
 
 BUF_SIZE = 10
 q = queue.Queue(BUF_SIZE)
 
-class Simulation(threading.Thread):
 
+class Simulation(threading.Thread):
     def __init__(self):
         super().__init__()
+        self.media_player = None
+        self.scent = None
+        self.temp = None
+        self.scenario = None
+        self.color_light = None
         self.status = ""
-        self.mediaplayer = vlc.MediaPlayer()
 
     def choose_video(self):
         # .......
@@ -60,7 +64,7 @@ class VUI(threading.Thread):
 
     def run(self):
         while True:
-            self.run_patel()
+            self.run_ada()
 
     def __init__(self):
         super().__init__()
@@ -68,8 +72,8 @@ class VUI(threading.Thread):
         voices = self.engine.getProperty('voices')
         self.engine.setProperty('voice', voices[1].id)  # This line adds female voice with indian accent.
 
-        self.engine.say("Hi!")
-        self.engine.say("How can I help?")
+        # self.engine.say("Hi!")
+        # self.engine.say("How can I help?")
         self.engine.runAndWait()
 
     def narrate(self, text):
@@ -93,11 +97,11 @@ class VUI(threading.Thread):
             print('You said: ' + command + '/n')
 
         except sr.UnknownValueError:
-            self.run_patel()
+            self.run_ada()
         return command.lower()
 
-    def run_patel(self):
-        """invokes patel and takes command, identifies specific words and makes patel do things"""
+    def run_ada(self):
+        """invokes ada and takes command, identifies specific words and makes ada do things"""
         command = self.take_command()
         print('User Command: ' + command)
 
@@ -168,7 +172,7 @@ class VUI(threading.Thread):
 
 
 def consume_q(c):
-    print("CONSUME")
+    print("CONSUME", c)
     voice_feedback.config(text=c[0] + c[1])
     match c[0]:
         case "scenario":
@@ -186,8 +190,8 @@ def consume_q(c):
         case "stop":
             sim.media_player.stop()
 
-def set_GUI(element, value):
 
+def set_GUI(element, value):
     match element:
         case "speed":
             speed.config(text=value)
@@ -196,12 +200,14 @@ def set_GUI(element, value):
         case "temperature":
             temperature.config(text=value)
             if value == "high" or value == "High":
-                top_frame.config(background="red")
+                root.config(background="red")
+                center_frame.config(background="red")
             elif value == "medium" or value == "Medium":
-                top_frame.config(background="orange")
+                root.config(background="orange")
+                center_frame.config(background="orange")
             elif value == "low" or value == "Low":
-                top_frame.config(background="yellow")
-
+                root.config(background="yellow")
+                center_frame.config(background="yellow")
 
 
 class Consumer(threading.Thread):
@@ -215,22 +221,11 @@ class Consumer(threading.Thread):
                 print(list(q.queue))
                 consume_q(c)
 
-
-def play_pause():
-    """ pauses and plays """
-    sim.play_pause()
-    if play_pause_btn.cget['image'] == pause_img:
-        play_pause_btn.config(image=start_img)
-    else:
-        play_pause_btn.config(image=pause_img)
-
 def play_video(place, scent, temperature):
     sim.load_video(place)
     set_GUI("speed", "normal")
     set_GUI("scent", scent)
     set_GUI("temperature", temperature)
-
-
 
 
 vui = VUI()
@@ -244,7 +239,7 @@ time.sleep(2)
 # Configure root params
 root = Tk()
 root.title("Car Suggestion")
-root.geometry('900x700+300+50')
+root.geometry('410x600+300+50')
 root.resizable(False, False)
 root.iconbitmap('img/logo.ico')
 
@@ -254,9 +249,9 @@ root.rowconfigure(1, weight=2)
 root.rowconfigure(2, weight=1)
 root.columnconfigure(0, weight=1)
 
-top_frame = Frame(root, padx=7, bg='green')
-center_frame = Frame(root, padx=7, bg='yellow')
-btm_frame = Frame(root, padx=7, bg='red')
+top_frame = Frame(root, padx=20)
+center_frame = Frame(root, padx=20, bg='#90EE90')
+btm_frame = Frame(root, padx=20, bg='#D3D3D3')
 
 # top_frame
 root.columnconfigure(0, weight=1)
@@ -266,18 +261,18 @@ root.columnconfigure(3, weight=1)
 root.columnconfigure(4, weight=1)
 root.columnconfigure(5, weight=1)
 
-speed_lb = Label(top_frame, text='Actual Speed: ', padx=20,
-                 font=('Helvetica', 16), justify='left')
-speed = Label(top_frame, text='              ', padx=20,
-              font=('Helvetica', 16), justify='left')
+speed_lb = Label(top_frame, text='Speed: ',
+                 font=('Helvetica', 12), justify='left')
+speed = Label(top_frame, text='', padx=20,
+              font=('Helvetica', 12), justify='left')
 scents_lb = Label(top_frame, text='Scent: ', padx=20,
-                  font=('Helvetica', 16), justify='left')
-scent = Label(top_frame, text='               ', padx=20,
-              font=('Helvetica', 16), justify='left')
-temperature_lb = Label(top_frame, text="Playing: ", padx=20,
-                       font=('Helvetica', 16), justify='left')
-temperature = Label(top_frame, text='               ', padx=20,
-                    font=('Helvetica', 16), justify='left')
+                  font=('Helvetica', 12), justify='left')
+scent = Label(top_frame, text='', padx=20,
+              font=('Helvetica', 12), justify='left')
+temperature_lb = Label(top_frame, text="Temp: ", padx=20,
+                       font=('Helvetica', 12), justify='left')
+temperature = Label(top_frame, text='', padx=20,
+                    font=('Helvetica', 12), justify='left')
 
 speed_lb.grid(row=0, column=0)
 speed.grid(row=0, column=1)
@@ -288,74 +283,53 @@ temperature.grid(row=0, column=5)
 
 # center_frame
 center_frame.rowconfigure(0, weight=1)
-center_frame.columnconfigure(0, weight=3)
+center_frame.columnconfigure(0, weight=2)
 center_frame.columnconfigure(1, weight=1)
+center_frame.columnconfigure(2, weight=1)
+center_frame.columnconfigure(3, weight=1)
 center_frame.rowconfigure(1, weight=1)
 center_frame.rowconfigure(2, weight=1)
 center_frame.rowconfigure(3, weight=1)
 center_frame.rowconfigure(4, weight=1)
-center_frame.rowconfigure(5, weight=1)
 
 radioSimulationValue = StringVar(value="Sea")
 
-Label(center_frame, text="Type of simulation").grid(row=0, column=5)
-Radiobutton(center_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=5)
+Label(center_frame, text="Type of simulation").grid(row=0, column=0)
+Radiobutton(center_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=0)
 Radiobutton(center_frame, text='Mountain', value='mountain', variable=radioSimulationValue).grid(row=2,
-                                                                                                 column=5)
-Radiobutton(center_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=5)
-Radiobutton(center_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=5)
-Radiobutton(center_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=5)
+                                                                                                 column=0)
+Radiobutton(center_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=0)
+Radiobutton(center_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=0)
+Radiobutton(center_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=0)
 
 radioTemperatureValue = StringVar(value="Medium")
-labelTemp = Label(center_frame, text="Temperature").grid(row=0, column=6)
-rt1 = Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=6)
+labelTemp = Label(center_frame, text="Temperature").grid(row=0, column=1)
+rt1 = Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=1)
 rt2 = Radiobutton(center_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2,
-                                                                                                    column=6)
-rt3 = Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=6)
+                                                                                                    column=1)
+rt3 = Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=1)
 
 radioScentValue = StringVar(value="Peaches")
-labelSim = Label(center_frame, text="Scent").grid(row=0, column=7)
+labelSim = Label(center_frame, text="Scent").grid(row=0, column=2)
 rsc1 = Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioScentValue).grid(row=1,
-                                                                                                 column=7)
+                                                                                                 column=2)
 rsc2 = Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioScentValue).grid(row=2,
-                                                                                                    column=7)
-rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioScentValue).grid(row=3, column=7)
+                                                                                                    column=2)
+rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioScentValue).grid(row=3, column=2)
 rsc4 = Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioScentValue).grid(row=4,
-                                                                                                     column=7)
+                                                                                                     column=2)
 
 buttonConfirm = Button(
     center_frame,
     text="Confirm selection",
     command=lambda: play_video(radioSimulationValue.get(), radioScentValue.get(), radioTemperatureValue.get()))
-buttonConfirm.grid(row=6, column=6)
+buttonConfirm.grid(row=6, column=1)
 
-voice_feedback = Label(center_frame, background='cyan')
-voice_feedback.grid(row=0, column=0, columnspan=5, sticky=NSEW)
-
-str = Label(center_frame, text='......', padx=20, font=('Helvetica', 16), justify='left')
-str.grid(row=0, column=9)
 
 # Configure btm_frame  rows and columns
-start_img = PhotoImage(file=f"img/play.png")
-pause_img = PhotoImage(file=f"img/pause.png")
-play_pause_btn = Button(master=btm_frame, image=start_img, borderwidth=0, highlightthickness=0,
-                        relief="flat",
-                        # command=lambda: threading.Thread(target=play_pause).start())
-                        command=play_pause)
-slow_img = PhotoImage(file=f"img/slow.png")
-slow_btn = Button(master=btm_frame, image=slow_img, borderwidth=0, relief="flat",
-                  command=sim.slowdown)
-fast_img = PhotoImage(file=f"img/fast.png")
-fast_btn = Button(master=btm_frame, image=fast_img, borderwidth=0, relief="flat",
-                  command=sim.speedup)
-load_img = PhotoImage(file=f"img/load.png")
-load_btn = Button(master=btm_frame, image=load_img, borderwidth=0, highlightthickness=0, relief="flat",
-                  command=lambda: sim.load_video("sim/prova.mkv"))
 
-load_btn.grid(row=0, column=0, sticky=EW)
-slow_btn.grid(row=0, column=1, sticky=EW)
-play_pause_btn.grid(row=0, column=2, sticky=EW)
-fast_btn.grid(row=0, column=4, sticky=EW)
+voice_feedback = Label(btm_frame)
+voice_feedback.grid(row=0, column=0, sticky=EW)
 
 top_frame.grid(row=0, sticky=EW)
 center_frame.grid(row=1, sticky=NSEW)
