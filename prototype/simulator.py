@@ -232,11 +232,14 @@ def set_GUI(element, value):
         case "temperature":
             temperature.config(text=value)
             if value == "high" or value == "High":
-                top_frame.config(background="red")
+                root.config(background="red")
+                center_frame.config(background="red")
             elif value == "medium" or value == "Medium":
-                top_frame.config(background="orange")
+                root.config(background="orange")
+                center_frame.config(background="red")
             elif value == "low" or value == "Low":
-                top_frame.config(background="yellow")
+                root.config(background="yellow")
+                center_frame.config(background="red")
 
 class Consumer(threading.Thread):
 
