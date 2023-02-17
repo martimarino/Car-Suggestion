@@ -13,19 +13,9 @@ BUF_SIZE = 10
 q = queue.Queue(BUF_SIZE)
 
 class Simulation(threading.Thread):
-    sea = ["https://www.youtube.com/watch?v=JHAcW9cU0mY",
-           "https://www.youtube.com/watch?v=-Tm4H4CrKT0",
-           "https://www.youtube.com/watch?v=wFN_QaTw1Bo"]
-    mountain = ["https://www.youtube.com/watch?v=eNhPu4Yf4s8",
-                "https://www.youtube.com/watch?v=cJpyQ9f1pQU&list=RDCMUCoTedxE3WwpDUGW8P6a3T6Q&index=5",
-                "https://www.youtube.com/watch?v=cJHGKSz_CDw&list=RDCMUCoTedxE3WwpDUGW8P6a3T6Q&index=15"]
 
     def __init__(self):
         super().__init__()
-        self.scent = None
-        self.temp = None
-        self.scenario = None
-        self.color_light = None
         self.status = ""
         self.mediaplayer = vlc.MediaPlayer()
 
@@ -117,37 +107,42 @@ class VUI(threading.Thread):
             place = command.replace('take me to the', '')
             print(place)
 
-            # scenario = ''
-            # if ("sea" or "beach") in place:
-            #     scenario = random.choice(sea)
-            # elif "mountain" in place:
-            #     scenario = random.choice(mountain)
-
             """ producer code """
             if not q.full():
                 q.put(["scenario", place])
                 print("QUEUE VUI: ", list(q.queue))
 
             self.narrate('simulating' + place)
-
             return
+
+        if 'slow' in command:
+            slow = command.replace('slow', '')
+            if not q.full():
+                q.put(["slow", slow])
+            sim.slowdown()
+            self.narrate('slow' + slow)
+            return
+
         if 'speed' in command:
             speed = command.replace('speed', '')
-            self.narrate('speed' + speed)
             if not q.full():
                 q.put(["speed", speed])
+            self.narrate('speed' + speed)
+            return
 
         if 'scent' in command:
             scent = command.replace('scent', '')
-            self.narrate('scent' + scent)
             if not q.full():
                 q.put(["scent", scent])
+            self.narrate('scent' + scent)
+            return
 
         if 'temperature' in command:
             temperature = command.replace('temperature', '')
-            self.narrate('temperature' + temperature)
             if not q.full():
                 q.put(["temperature", temperature])
+            self.narrate('temperature' + temperature)
+            return
 
         if 'what' and 'time' in command:  # shares the current time in 24hr format
             print('--------------- 2 -----------')
@@ -180,16 +175,33 @@ def consume_q(c):
             sim.load_video(c[1])
             q.task_done()
         case "speed":
-            speed.config(text=c[1])
+            set_GUI("speed", c[1])
             q.task_done()
         case "scent":
-            speed.config(text=c[1])
+            set_GUI("scent", c[1])
             q.task_done()
         case "temperature":
-            speed.config(text=c[1])
+            set_GUI("temperature", c[1])
             q.task_done()
         case "stop":
             sim.media_player.stop()
+
+def set_GUI(element, value):
+
+    match element:
+        case "speed":
+            speed.config(text=value)
+        case "scent":
+            scent.config(text=value)
+        case "temperature":
+            temperature.config(text=value)
+            if value == "high" or value == "High":
+                top_frame.config(background="red")
+            elif value == "medium" or value == "Medium":
+                top_frame.config(background="orange")
+            elif value == "low" or value == "Low":
+                top_frame.config(background="yellow")
+
 
 
 class Consumer(threading.Thread):
@@ -211,6 +223,14 @@ def play_pause():
         play_pause_btn.config(image=start_img)
     else:
         play_pause_btn.config(image=pause_img)
+
+def play_video(place, scent, temperature):
+    sim.load_video(place)
+    set_GUI("speed", "normal")
+    set_GUI("scent", scent)
+    set_GUI("temperature", temperature)
+
+
 
 
 vui = VUI()
@@ -306,7 +326,7 @@ rsc4 = Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=r
 buttonConfirm = Button(
     center_frame,
     text="Confirm selection",
-    command=lambda: sim.load_video(radioSimulationValue.get()))
+    command=lambda: play_video(radioSimulationValue.get(), radioScentValue.get(), radioTemperatureValue.get()))
 buttonConfirm.grid(row=6, column=6)
 
 voice_feedback = Label(center_frame, background='cyan')
