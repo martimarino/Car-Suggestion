@@ -8,6 +8,7 @@ import speech_recognition as sr
 import vlc
 import os
 import time
+from fuzzywuzzy import fuzz
 
 BUF_SIZE = 10
 q = queue.Queue(BUF_SIZE)
@@ -37,9 +38,14 @@ class Simulation(threading.Thread):
     def load_video(self, place):
         self.status = "play"
         for file in os.listdir('sim'):
-            print(file)
-            if place in file:
+            #if place in file:
+            ratio = fuzz.ratio(place.lower(), file.lower())
+            print(file, ratio)
+
+            if ratio > 50:
+                print("HERE!")
                 self.media_player = vlc.MediaPlayer("./sim/" + file)
+                break
             else:
                 self.media_player = vlc.MediaPlayer("./sim/prova.mkv")
 
@@ -106,7 +112,6 @@ class VUI(threading.Thread):
             print('--------------- 1 -----------')
             place = command.replace('take me to the', '')
             print(place)
-
             """ producer code """
             if not q.full():
                 q.put(["scenario", place])
@@ -115,12 +120,28 @@ class VUI(threading.Thread):
             self.narrate('simulating' + place)
             return
 
-        if 'slow' in command:
+        if 'pause' in command:
+            pause = command.replace('pause', '')
+            if not q.full():
+                q.put(["pause", pause])
+
+            self.narrate('pause' + pause)
+            return
+
+        if 'slow' in command or 'slower' in command:
             slow = command.replace('slow', '')
             if not q.full():
                 q.put(["slow", slow])
-            sim.slowdown()
+
             self.narrate('slow' + slow)
+            return
+
+        if 'fast' in command or 'faster' in command:
+            fast = command.replace('fast', '')
+            if not q.full():
+                q.put(["fast", fast])
+
+            self.narrate('fast' + fast)
             return
 
         if 'speed' in command:
@@ -160,7 +181,7 @@ class VUI(threading.Thread):
         if "bye" in command:
             self.narrate("Bye bye")
             quit()
-        if "stop" in command:
+        if "stop" in command or "close" in command:
             if not q.full():
                 q.put(["stop", "stop"])
         else:
@@ -171,6 +192,15 @@ def consume_q(c):
     print("CONSUME")
     voice_feedback.config(text=c[0] + c[1])
     match c[0]:
+        case "pause":
+            sim.play_pause()
+            q.task_done()
+        case "slow":
+            sim.slowdown()
+            q.task_done()
+        case "fast":
+            sim.speedup()
+            q.task_done()
         case "scenario":
             sim.load_video(c[1])
             q.task_done()
@@ -202,8 +232,6 @@ def set_GUI(element, value):
             elif value == "low" or value == "Low":
                 top_frame.config(background="yellow")
 
-
-
 class Consumer(threading.Thread):
 
     def run(self):
@@ -229,8 +257,6 @@ def play_video(place, scent, temperature):
     set_GUI("speed", "normal")
     set_GUI("scent", scent)
     set_GUI("temperature", temperature)
-
-
 
 
 vui = VUI()
