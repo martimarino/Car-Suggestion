@@ -8,12 +8,14 @@ import datetime
 import threading
 from tkinter import *
 import speech_recognition as sr
+from fuzzywuzzy import fuzz
 
 BUF_SIZE = 10
 q = queue.Queue(BUF_SIZE)
 
 
 class Simulation(threading.Thread):
+
     def __init__(self):
         super().__init__()
         self.media_player = None
@@ -41,9 +43,14 @@ class Simulation(threading.Thread):
     def load_video(self, place):
         self.status = "play"
         for file in os.listdir('sim'):
-            print(file)
-            if place in file:
+            #if place in file:
+            ratio = fuzz.ratio(place.lower(), file.lower())
+            print(file, ratio)
+
+            if ratio > 50:
+                print("HERE!")
                 self.media_player = vlc.MediaPlayer("./sim/" + file)
+                break
             else:
                 self.media_player = vlc.MediaPlayer("./sim/prova.mkv")
 
@@ -119,12 +126,28 @@ class VUI(threading.Thread):
             self.narrate('simulating' + place)
             return
 
-        if 'slow' in command:
+        if 'pause' in command:
+            pause = command.replace('pause', '')
+            if not q.full():
+                q.put(["pause", pause])
+
+            self.narrate('pause' + pause)
+            return
+
+        if 'slow' in command or 'slower' in command:
             slow = command.replace('slow', '')
             if not q.full():
                 q.put(["slow", slow])
-            sim.slowdown()
+
             self.narrate('slow' + slow)
+            return
+
+        if 'fast' in command or 'faster' in command:
+            fast = command.replace('fast', '')
+            if not q.full():
+                q.put(["fast", fast])
+
+            self.narrate('fast' + fast)
             return
 
         if 'speed' in command:
@@ -164,7 +187,7 @@ class VUI(threading.Thread):
         if "bye" in command:
             self.narrate("Bye bye")
             quit()
-        if "stop" in command:
+        if "stop" in command or "close" in command:
             if not q.full():
                 q.put(["stop", "stop"])
         else:
@@ -175,6 +198,15 @@ def consume_q(c):
     print("CONSUME", c)
     voice_feedback.config(text=c[0] + c[1])
     match c[0]:
+        case "pause":
+            sim.play_pause()
+            q.task_done()
+        case "slow":
+            sim.slowdown()
+            q.task_done()
+        case "fast":
+            sim.speedup()
+            q.task_done()
         case "scenario":
             sim.load_video(c[1])
             q.task_done()
@@ -190,8 +222,8 @@ def consume_q(c):
         case "stop":
             sim.media_player.stop()
 
-
 def set_GUI(element, value):
+
     match element:
         case "speed":
             speed.config(text=value)
@@ -200,15 +232,11 @@ def set_GUI(element, value):
         case "temperature":
             temperature.config(text=value)
             if value == "high" or value == "High":
-                root.config(background="red")
-                center_frame.config(background="red")
+                top_frame.config(background="red")
             elif value == "medium" or value == "Medium":
-                root.config(background="orange")
-                center_frame.config(background="orange")
+                top_frame.config(background="orange")
             elif value == "low" or value == "Low":
-                root.config(background="yellow")
-                center_frame.config(background="yellow")
-
+                top_frame.config(background="yellow")
 
 class Consumer(threading.Thread):
 
@@ -226,7 +254,6 @@ def play_video(place, scent, temperature):
     set_GUI("speed", "normal")
     set_GUI("scent", scent)
     set_GUI("temperature", temperature)
-
 
 vui = VUI()
 vui.start()
@@ -324,7 +351,6 @@ buttonConfirm = Button(
     text="Confirm selection",
     command=lambda: play_video(radioSimulationValue.get(), radioScentValue.get(), radioTemperatureValue.get()))
 buttonConfirm.grid(row=6, column=1)
-
 
 # Configure btm_frame  rows and columns
 
