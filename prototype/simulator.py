@@ -1,4 +1,6 @@
 import os
+import random
+
 import vlc
 import time
 import queue
@@ -8,7 +10,6 @@ import datetime
 import threading
 from tkinter import *
 import speech_recognition as sr
-from fuzzywuzzy import fuzz
 
 BUF_SIZE = 10
 q = queue.Queue(BUF_SIZE)
@@ -41,17 +42,23 @@ class Simulation(threading.Thread):
 
     def load_video(self, place):
         self.status = "play"
+        list = []
         for file in os.listdir('sim'):
-            #if place in file:
-            ratio = fuzz.ratio(place.lower(), file.lower())
-            print(file, ratio)
+            file_name, file_extension = os.path.splitext(file)
+            print(file, file_name)
+            name = file_name.split("_")
+            if name[0] in place:
+                print(file_name, name[0])
+                list.append(file)
 
-            if ratio > 50:
-                print("HERE!")
-                self.media_player = vlc.MediaPlayer("./sim/" + file)
-                break
-            else:
-                self.media_player = vlc.MediaPlayer("./sim/prova.mkv")
+        print(list)
+
+        if list:
+            choice = random.randint(0, len(list) - 1)
+            print(choice, list[choice])
+            self.media_player = vlc.MediaPlayer("./sim/" + list[choice])
+        else:
+            self.media_player = vlc.MediaPlayer("./sim/prova.mkv")
 
         self.media_player.play()
         self.media_player.audio_set_volume(100)
@@ -99,7 +106,7 @@ class VUI(threading.Thread):
             r.adjust_for_ambient_noise(source, duration=1)
             audio = r.listen(source)
         try:
-            command = r.recognize_google(audio)
+            command = r.recognize_google(audio, language='en-in')
             print('You said: ' + command + '/n')
 
         except sr.UnknownValueError:
@@ -125,6 +132,18 @@ class VUI(threading.Thread):
             self.narrate('simulating' + place)
             return
 
+        if 'change of scenario to' in command:
+            place = command.replace('change scenario to', '')
+            print(place)
+
+            """ producer code """
+            if not q.full():
+                q.put(["change", place])
+                print("QUEUE VUI: ", list(q.queue))
+
+            self.narrate('change to' + place)
+            return
+
         if 'pause' in command:
             pause = command.replace('pause', '')
             if not q.full():
@@ -133,7 +152,7 @@ class VUI(threading.Thread):
             self.narrate('pause' + pause)
             return
 
-        if 'slow' in command or 'slower' in command:
+        if 'slow' in command or 'slower' in command or 'low' in command:
             slow = command.replace('slow', '')
             if not q.full():
                 q.put(["slow", slow])
@@ -149,14 +168,7 @@ class VUI(threading.Thread):
             self.narrate('fast' + fast)
             return
 
-        if 'speed' in command:
-            speed = command.replace('speed', '')
-            if not q.full():
-                q.put(["speed", speed])
-            self.narrate('speed' + speed)
-            return
-
-        if 'scent' in command:
+        if 'perfume' in command:
             scent = command.replace('scent', '')
             if not q.full():
                 q.put(["scent", scent])
@@ -183,9 +195,11 @@ class VUI(threading.Thread):
             print(joke)
             self.narrate(joke)
             return
+
         if "bye" in command:
             self.narrate("Bye bye")
             quit()
+
         if "stop" in command or "close" in command:
             if not q.full():
                 q.put(["stop", "stop"])
@@ -197,46 +211,65 @@ def consume_q(c):
     print("CONSUME", c)
     voice_feedback.config(text=c[0] + c[1])
     match c[0]:
+        case "change":
+            sim.media_player.stop()
+            sim.load_video(c[1])
+            q.task_done()
         case "pause":
             sim.play_pause()
             q.task_done()
         case "slow":
             sim.slowdown()
+            set_GUI("speed", "low")
             q.task_done()
         case "fast":
             sim.speedup()
+            set_GUI("speed", "high")
             q.task_done()
         case "scenario":
+
             sim.load_video(c[1])
+            set_GUI("speed", "normal")
+            set_GUI("temperature", "medium")
+
+            if  "sea" in c[1]:
+                set_GUI("scent", "peaches")
+            if "city" == c[1] or "highway" == c[1]:
+                set_GUI("scent", "lavender")
+            if "mountain" == c[1]:
+                set_GUI("scent", "cloves")
+            if  "forest" == c[1]:
+                set_GUI("scent", "mushrooms")
             q.task_done()
-        case "speed":
-            set_GUI("speed", c[1])
-            q.task_done()
+
         case "scent":
             set_GUI("scent", c[1])
             q.task_done()
+
         case "temperature":
             set_GUI("temperature", c[1])
             q.task_done()
+
         case "stop":
             sim.media_player.stop()
 
 def change_colors(value):
-    if value == "peaches":
+    if "peaches" in value:
         root.config(background="#FFCBA4")
         center_frame.config(background="#FFCBA4")
-    elif value == "lavender":
+    elif "lavender" in value:
         root.config(background="#DCD0FF")
         center_frame.config(background="#DCD0FF")
-    elif value == "cloves":
+    elif "cloves" in value:
         root.config(background="#A75C3A")
         center_frame.config(background="#A75C3A")
-    elif value == "mushrooms":
+    elif "mushrooms" in value:
         root.config(background="#D8CCC0")
         center_frame.config(background="#D8CCC0")
 
 def set_GUI(element, value):
 
+    print(element, value)
     match element:
         case "speed":
             speed.config(text=value)
@@ -263,8 +296,8 @@ class Consumer(threading.Thread):
 def play_video(place, scent, temperature):
     sim.load_video(place)
     set_GUI("speed", "normal")
-    set_GUI("scent", scent.lower())
-    set_GUI("temperature", temperature.lower())
+    set_GUI("scent", scent)
+    set_GUI("temperature", temperature)
 
 vui = VUI()
 vui.start()
