@@ -22,7 +22,6 @@ class Simulation(threading.Thread):
         self.scent = None
         self.temp = None
         self.scenario = None
-        self.color_light = None
         self.status = ""
 
     def choose_video(self):
@@ -222,24 +221,33 @@ def consume_q(c):
         case "stop":
             sim.media_player.stop()
 
+def change_colors(value):
+    if value == "peaches":
+        root.config(background="#FFCBA4")
+        center_frame.config(background="#FFCBA4")
+    elif value == "lavender":
+        root.config(background="#DCD0FF")
+        center_frame.config(background="#DCD0FF")
+    elif value == "cloves":
+        root.config(background="#A75C3A")
+        center_frame.config(background="#A75C3A")
+    elif value == "mushrooms":
+        root.config(background="#D8CCC0")
+        center_frame.config(background="#D8CCC0")
+
 def set_GUI(element, value):
 
     match element:
         case "speed":
             speed.config(text=value)
         case "scent":
+            print("VALUE", value)
             scent.config(text=value)
+            change_colors(value.lower())
         case "temperature":
             temperature.config(text=value)
-            if value == "high" or value == "High":
-                root.config(background="red")
-                center_frame.config(background="red")
-            elif value == "medium" or value == "Medium":
-                root.config(background="orange")
-                center_frame.config(background="red")
-            elif value == "low" or value == "Low":
-                root.config(background="yellow")
-                center_frame.config(background="red")
+        case "color":
+            change_colors(value.lower())
 
 class Consumer(threading.Thread):
 
@@ -255,8 +263,8 @@ class Consumer(threading.Thread):
 def play_video(place, scent, temperature):
     sim.load_video(place)
     set_GUI("speed", "normal")
-    set_GUI("scent", scent)
-    set_GUI("temperature", temperature)
+    set_GUI("scent", scent.lower())
+    set_GUI("temperature", temperature.lower())
 
 vui = VUI()
 vui.start()
@@ -269,9 +277,10 @@ time.sleep(2)
 # Configure root params
 root = Tk()
 root.title("Car Suggestion")
-root.geometry('410x600+300+50')
+root.geometry('500x600+300+50')
 root.resizable(False, False)
 root.iconbitmap('img/logo.ico')
+root.config(bg="#90EE90")
 
 # Configure root rows and columns
 root.rowconfigure(0, weight=1)
@@ -293,15 +302,15 @@ root.columnconfigure(5, weight=1)
 
 speed_lb = Label(top_frame, text='Speed: ',
                  font=('Helvetica', 12), justify='left')
-speed = Label(top_frame, text='', padx=20,
+speed = Label(top_frame, text='        ', padx=20,
               font=('Helvetica', 12), justify='left')
 scents_lb = Label(top_frame, text='Scent: ', padx=20,
                   font=('Helvetica', 12), justify='left')
-scent = Label(top_frame, text='', padx=20,
+scent = Label(top_frame, text='         ', padx=20,
               font=('Helvetica', 12), justify='left')
 temperature_lb = Label(top_frame, text="Temp: ", padx=20,
                        font=('Helvetica', 12), justify='left')
-temperature = Label(top_frame, text='', padx=20,
+temperature = Label(top_frame, text='         ', padx=20,
                     font=('Helvetica', 12), justify='left')
 
 speed_lb.grid(row=0, column=0)
@@ -313,14 +322,14 @@ temperature.grid(row=0, column=5)
 
 # center_frame
 center_frame.rowconfigure(0, weight=1)
-center_frame.columnconfigure(0, weight=2)
-center_frame.columnconfigure(1, weight=1)
-center_frame.columnconfigure(2, weight=1)
-center_frame.columnconfigure(3, weight=1)
 center_frame.rowconfigure(1, weight=1)
 center_frame.rowconfigure(2, weight=1)
 center_frame.rowconfigure(3, weight=1)
 center_frame.rowconfigure(4, weight=1)
+center_frame.columnconfigure(0, weight=2)
+center_frame.columnconfigure(1, weight=1)
+center_frame.columnconfigure(2, weight=1)
+center_frame.columnconfigure(3, weight=1)
 
 radioSimulationValue = StringVar(value="Sea")
 
