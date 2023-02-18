@@ -26,15 +26,17 @@ sg.theme("DarkBlue")
 layout = [
     [sg.Input(key='-IN-', visible=False, enable_events=True),
      sg.FileBrowse(file_types=(("MP4 Files", "*.mp4"),), visible=False)],
-    [sg.Text('Choose place'), sg.Combo(['Sea', 'Mountain', 'City', 'Highway', 'Forest'], key='place'),
-     sg.Text('Choose temperature'), sg.Combo(['Low', 'Medium', 'High'], key='temperature'),
+    [sg.Text('Choose place'),
+     sg.Combo(['Sea', 'Mountain', 'City', 'Highway', 'Forest'], key='place', readonly=True),
+     sg.Text('Choose temperature'),
+     sg.Combo(['Low', 'Medium', 'High'], key='temperature', readonly=True),
      sg.Text('Choose scent'),
-     sg.Combo(['Peaches', 'Lavender', 'Cloves', 'Mushrooms'], key='scent'),
+     sg.Combo(['Peaches', 'Lavender', 'Cloves', 'Mushrooms'], key='scent', readonly=True),
      sg.ReadButton('Confirm')],
     [sg.ReadButton('Speak')],
     [sg.Text('Speed: '), sg.Text('', key='speed'),
-     sg.Text('Temperature: '), sg.Text('', key='temp'),
-     sg.Text('Scent: '), sg.Text('', key='scent')],
+     sg.Text('Temperature: '), sg.Text('', key='scent_label'),
+     sg.Text('Scent: '), sg.Text('', key='temp')],
     [sg.Graph((640, 480), (0, 0), (640, 480), key='-CANVAS-')],
     [sg.Text('Output: '), sg.Text('', key='output')]
 ]
@@ -47,18 +49,8 @@ player.set_hwnd(h)
 
 
 def load_video(place):
-    # for file in os.listdir('sim'):
-    #     # if place in file:
-    #     ratio = fuzz.ratio(place.lower(), file.lower())
-    #     print(file, ratio)
-    #
-    #     if ratio > 50:
-    #         m = Instance.media_new('./sim/' + file)  # Path, unicode
-    #     else:
-    #         m = Instance.media_new('./sim/sea.mp4')  # Path, unicode
-    #     player.set_media(m)
-    #     player.play()
 
+    print("PLACE:" + place)
     list = []
     for file in os.listdir('sim'):
         file_name, file_extension = os.path.splitext(file)
@@ -73,12 +65,12 @@ def load_video(place):
     if list:
         choice = random.randint(0, len(list) - 1)
         print(choice, list[choice])
-        media_player = vlc.MediaPlayer("./sim/" + list[choice])
+        m = Instance.media_new("./sim/" + list[choice])
     else:
-        media_player = vlc.MediaPlayer("./sim/prova.mkv")
+        m = Instance.media_new("./sim/prova.mkv")
 
-    media_player.play()
-    media_player.audio_set_volume(100)
+    player.set_media(m)
+    player.play()
 
 def voice_rec():
     m = sr.Microphone()
@@ -102,7 +94,7 @@ def voice_rec():
                 window['output'].update('pause')
                 return
 
-            if 'slow' in voice_data or 'slower' in voice_data:
+            if 'slow' in voice_data or 'slower' in voice_data or 'low' in voice_data:
                 slow = voice_data.replace('slow', '')
                 player.set_rate(player.get_rate() / 2)
 
@@ -151,21 +143,20 @@ def set_GUI(element, value):
         case "speed":
             window['speed'].update(value)
         case "scent":
-            print("VALUE", value)
-            window['scent'].update(value)
-            #change_colors(value.lower())
+            print("scent: " + scent)
+            window['scent_label'].update(value)
         case "temperature":
-            window['temperature'].update(value)
+            print("temp: " + temperature)
+            window['temp'].update(value)
         case "color":
             print("color")
-            #change_colors(value.lower())
 
 
 def play_video(place, scent, temperature):
     load_video(place)
     set_GUI("speed", "normal")
-    set_GUI("scent", scent.lower())
-    set_GUI("temperature", temperature.lower())
+    set_GUI("scent", scent)
+    set_GUI("temperature", temperature)
 
 
 while True:
@@ -182,9 +173,10 @@ while True:
     if event == 'Speak':
         voice_rec()
     elif event == 'Confirm':
-        place = values['place']
-        temperature = values['temperature']
-        scent = values['scent']
+        print("CONFIRM")
+        place = values['place'].lower()
+        temperature = values['temperature'].lower()
+        scent = values['scent'].lower()
         play_video(place, temperature, scent)
 
 player.stop()
