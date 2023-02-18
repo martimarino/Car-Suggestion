@@ -34,8 +34,8 @@ layout = [
      sg.ReadButton('Confirm')],
     [sg.ReadButton('Speak')],
     [sg.Text('Speed: '), sg.Text('', key='speed'),
-     sg.Text('Temperature: '), sg.Text('', key='scent_label'),
-     sg.Text('Scent: '), sg.Text('', key='temp')],
+     sg.Text('Temperature: '), sg.Text('', key='temp'),
+     sg.Text('Scent: '), sg.Text('', key='scent_label')],
     [sg.Graph((640, 480), (0, 0), (640, 480), key='-CANVAS-')],
     [sg.Text('Output: '), sg.Text('', key='output')]
 ]
@@ -59,8 +59,6 @@ def load_video(place):
             print(file_name, name[0])
             list.append(file)
 
-    print(list)
-
     if list:
         choice = random.randint(0, len(list) - 1)
         print(choice, list[choice])
@@ -81,11 +79,19 @@ def voice_rec():
 
             if 'take me to the' in voice_data:
                 place = voice_data.replace('take me to the', '')
-                m = Instance.media_new('./sim/sea.mp4')  # Path, unicode
-                player.set_media(m)
-                player.play()
-                print(place)
+                load_video(place)
                 window['speed'].update(str(random.randint(40, 60)) + ' km/h')
+
+                set_GUI("temperature", "medium")
+
+                if "sea" in place:
+                    set_GUI("scent", "peaches")
+                if "city" in place or "highway" in place:
+                    set_GUI("scent", "lavender")
+                if "mountain" in place:
+                    set_GUI("scent", "cloves")
+                if "forest" in place:
+                    set_GUI("scent", "mushrooms")
                 return
 
             if 'pause' in voice_data:
@@ -96,7 +102,6 @@ def voice_rec():
             if 'slow' in voice_data or 'slower' in voice_data or 'low' in voice_data:
                 slow = voice_data.replace('slow', '')
                 player.set_rate(player.get_rate() / 2)
-
                 window['output'].update(slow)
                 return
 
@@ -148,21 +153,20 @@ def change_colors(value):
         sg.theme("DarkBrown6")
 
 def set_GUI(element, value):
-    match element:
-        case "speed":
-            window['speed'].update(value)
-        case "scent":
-            window['scent_label'].update(value)
-        case "temperature":
-            window['temp'].update(value)
-        case "color":
-            change_colors(value)
-            print("color" + value)
+
+    if element == "speed":
+        window['speed'].update(value)
+    elif element == "scent":
+        window['scent_label'].update(value)
+    elif element == "temperature":
+        window['temp'].update(value)
+    elif element == "color":
+        print("color")
 
 
 def play_video(place, scent, temperature):
     load_video(place)
-    set_GUI("speed", "normal")
+    window['speed'].update(str(random.randint(40, 60)) + ' km/h')
     set_GUI("scent", scent)
     set_GUI("temperature", temperature)
 
@@ -185,7 +189,7 @@ while True:
         place = values['place'].lower()
         temperature = values['temperature'].lower()
         scent = values['scent'].lower()
-        play_video(place, temperature, scent)
+        play_video(place, scent, temperature)
 
 player.stop()
 window.close()
