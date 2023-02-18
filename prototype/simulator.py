@@ -14,7 +14,6 @@ import speech_recognition as sr
 BUF_SIZE = 10
 q = queue.Queue(BUF_SIZE)
 
-
 class Simulation(threading.Thread):
 
     def __init__(self):
@@ -300,10 +299,12 @@ def play_video(place, scent, temperature):
     set_GUI("temperature", temperature)
 
 vui = VUI()
+vui.daemon = True
 vui.start()
 time.sleep(2)
 sim = Simulation()
 cons = Consumer()
+cons.daemon = True
 cons.start()
 time.sleep(2)
 
