@@ -142,15 +142,17 @@ def voice_rec():
             window['output'].update('Did not understand')
 
 def change_colors(value):
+
     if "peaches" in value:
-        sg.theme("LightBrown7")
-        background_color='#FFCBA4'
+        window['-CANVAS-'].update(background_color='#FFCBA4')
     elif "lavender" in value:
-        sg.theme("LightPurple")
+        window['-CANVAS-'].update(background_color='#CBC3E3')
+
     elif "cloves" in value:
-        sg.theme("DarkBrown5")
+        window['-CANVAS-'].update(background_color='#654321')
+
     elif "mushrooms" in value:
-        sg.theme("DarkBrown6")
+        window['-CANVAS-'].update(background_color='#013220')
 
 def set_GUI(element, value):
 
@@ -158,10 +160,11 @@ def set_GUI(element, value):
         window['speed'].update(value)
     elif element == "scent":
         window['scent_label'].update(value)
+        change_colors(value)
     elif element == "temperature":
         window['temp'].update(value)
     elif element == "color":
-        print("color")
+        change_colors(value)
 
 
 def play_video(place, scent, temperature):
