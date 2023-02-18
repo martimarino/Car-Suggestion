@@ -6,7 +6,6 @@ import random
 import PySimpleGUI as sg
 
 import os
-from fuzzywuzzy import fuzz
 import speech_recognition as sr
 import pyjokes
 import datetime
@@ -137,19 +136,28 @@ def voice_rec():
             print('Did not understand')
             window['output'].update('Did not understand')
 
+def change_colors(value):
+    if "peaches" in value:
+        sg.theme("LightBrown7")
+        background_color='#FFCBA4'
+    elif "lavender" in value:
+        sg.theme("LightPurple")
+    elif "cloves" in value:
+        sg.theme("DarkBrown5")
+    elif "mushrooms" in value:
+        sg.theme("DarkBrown6")
 
 def set_GUI(element, value):
     match element:
         case "speed":
             window['speed'].update(value)
         case "scent":
-            print("scent: " + scent)
             window['scent_label'].update(value)
         case "temperature":
-            print("temp: " + temperature)
             window['temp'].update(value)
         case "color":
-            print("color")
+            change_colors(value)
+            print("color" + value)
 
 
 def play_video(place, scent, temperature):
