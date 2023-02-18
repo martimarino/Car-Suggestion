@@ -146,6 +146,27 @@ def voice_rec():
             window['output'].update('Did not understand')
 
 
+def set_GUI(element, value):
+    match element:
+        case "speed":
+            window['speed'].update(value)
+        case "scent":
+            print("VALUE", value)
+            window['scent'].update(value)
+            #change_colors(value.lower())
+        case "temperature":
+            window['temperature'].update(value)
+        case "color":
+            print("color")
+            #change_colors(value.lower())
+
+
+def play_video(place, scent, temperature):
+    load_video(place)
+    set_GUI("speed", "normal")
+    set_GUI("scent", scent.lower())
+    set_GUI("temperature", temperature.lower())
+
 
 while True:
 
@@ -160,6 +181,11 @@ while True:
             player.play()
     if event == 'Speak':
         voice_rec()
+    elif event == 'Confirm':
+        place = values['place']
+        temperature = values['temperature']
+        scent = values['scent']
+        play_video(place, temperature, scent)
 
 player.stop()
 window.close()
