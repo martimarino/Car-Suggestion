@@ -40,6 +40,8 @@ class Simulation(threading.Thread):
             return
 
     def load_video(self, place):
+        if self.status == "stop":
+            sim.media_player.stop()
         self.status = "play"
         list = []
         for file in os.listdir('sim'):
@@ -214,7 +216,6 @@ def consume_q(c):
     print("CONSUME", c)
     voice_feedback.config(text=c[0] + c[1])
     if c[0] == "change":
-        sim.media_player.stop()
         sim.load_video(c[1])
         if  "sea" in c[1]:
             set_GUI("perfume", "peaches")
@@ -263,6 +264,7 @@ def consume_q(c):
             q.task_done()
 
     elif c[0] == "stop":
+        sim.status = "stop"
         sim.media_player.stop()
 
 def set_speed_label_value(value):
@@ -331,7 +333,7 @@ time.sleep(2)
 # Configure root params
 root = Tk()
 root.title("Car Suggestion")
-root.geometry('500x550+300+50')
+root.geometry('550x600+300+50')
 # root.resizable(False, False)
 root.iconbitmap('img/logo.ico')
 root.config(bg="#90EE90")
@@ -419,11 +421,13 @@ Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioperfumeV
                                                                                            sticky="W")
 Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
                                                                                                 column=2,
-                                                                                                sticky="W")
-
+                                                                            sticky="W")
+confirm = PhotoImage(file='./img/confirm_text.png')
 buttonConfirm = Button(
     center_frame,
     text="Confirm selection",
+    image=confirm, relief="flat",
+    bg="white", activebackground="white",
     command=lambda: play_video(radioSimulationValue.get(), radioperfumeValue.get(), radioTemperatureValue.get()))
 buttonConfirm.grid(row=6, column=1, sticky="W")
 
