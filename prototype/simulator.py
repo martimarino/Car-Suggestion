@@ -19,7 +19,7 @@ class Simulation(threading.Thread):
     def __init__(self):
         super().__init__()
         self.media_player = None
-        self.scent = None
+        self.perfume = None
         self.temp = None
         self.scenario = None
         self.status = ""
@@ -63,10 +63,10 @@ class Simulation(threading.Thread):
         self.media_player.audio_set_volume(100)
 
     def speedup(self):
-        self.media_player.set_rate(2)
+        self.media_player.set_rate(self.media_player.get_rate()*2)
 
     def slowdown(self):
-        self.media_player.set_rate(0.5)
+        self.media_player.set_rate(self.media_player.get_rate()/2)
 
     def run(self):
         return
@@ -168,10 +168,10 @@ class VUI(threading.Thread):
             return
 
         if 'perfume' in command:
-            scent = command.replace('scent', '')
+            perfume = command.replace('perfume', '')
             if not q.full():
-                q.put(["scent", scent])
-            self.narrate('scent' + scent)
+                q.put(["perfume", perfume])
+            self.narrate('perfume' + perfume)
             return
 
         if 'temperature' in command:
@@ -209,48 +209,59 @@ class VUI(threading.Thread):
 def consume_q(c):
     print("CONSUME", c)
     voice_feedback.config(text=c[0] + c[1])
-    match c[0]:
-        case "change":
-            sim.media_player.stop()
-            sim.load_video(c[1])
-            q.task_done()
-        case "pause":
-            sim.play_pause()
-            q.task_done()
-        case "slow":
-            sim.slowdown()
-            set_GUI("speed", "low")
-            q.task_done()
-        case "fast":
-            sim.speedup()
-            set_GUI("speed", "high")
-            q.task_done()
-        case "scenario":
+    if c[0] == "change":
+        sim.media_player.stop()
+        sim.load_video(c[1])
+        q.task_done()
+    elif c[0] == "pause":
+        sim.play_pause()
+        q.task_done()
+    elif c[0] == "slow":
+        sim.slowdown()
+        set_GUI("speed", "low")
+        q.task_done()
+    elif c[0] == "fast":
+        sim.speedup()
+        set_GUI("speed", "high")
+        q.task_done()
+    elif c[0] == "scenario":
+        
+        sim.load_video(c[1])
+        set_GUI("speed", change_speed(1))   # normal speed
+        set_GUI("temperature", "medium")
 
-            sim.load_video(c[1])
-            set_GUI("speed", "normal")
-            set_GUI("temperature", "medium")
+        if  "sea" in c[1]:
+            set_GUI("perfume", "peaches")
+        if "city" == c[1] or "highway" == c[1]:
+            set_GUI("perfume", "lavender")
+        if "mountain" == c[1]:
+            set_GUI("perfume", "cloves")
+        if  "forest" == c[1]:
+            set_GUI("perfume", "mushrooms")
+        q.task_done()
 
-            if  "sea" in c[1]:
-                set_GUI("scent", "peaches")
-            if "city" == c[1] or "highway" == c[1]:
-                set_GUI("scent", "lavender")
-            if "mountain" == c[1]:
-                set_GUI("scent", "cloves")
-            if  "forest" == c[1]:
-                set_GUI("scent", "mushrooms")
-            q.task_done()
+    elif c[0] == "perfume":
+        set_GUI("perfume", c[1])
+        q.task_done()
 
-        case "scent":
-            set_GUI("scent", c[1])
-            q.task_done()
+    elif c[0] == "temperature":
+        set_GUI("temperature", c[1])
+        q.task_done()
 
-        case "temperature":
-            set_GUI("temperature", c[1])
-            q.task_done()
+    elif c[0] == "stop":
+        sim.media_player.stop()
 
-        case "stop":
-            sim.media_player.stop()
+def change_speed(value):
+    if value == 1:
+        return str(random.randint(40, 60)) + ' km/h'
+    elif value == 0.5:
+        return str(random.randint(20, 40)) + ' km/h'
+    elif value == 0.25:
+        return str(random.randint(10, 20)) + ' km/h'
+    elif value == 2:
+        return str(random.randint(60, 80)) + ' km/h'
+    elif value == 4:
+        return str(random.randint(80, 100)) + ' km/h'
 
 def change_colors(value):
     if "peaches" in value:
@@ -269,17 +280,16 @@ def change_colors(value):
 def set_GUI(element, value):
 
     print(element, value)
-    match element:
-        case "speed":
-            speed.config(text=value)
-        case "scent":
-            print("VALUE", value)
-            scent.config(text=value)
-            change_colors(value.lower())
-        case "temperature":
-            temperature.config(text=value)
-        case "color":
-            change_colors(value.lower())
+    if element == "speed":
+        speed.config(text=value)
+    elif element == "perfume":
+        print("VALUE", value)
+        perfume.config(text=value)
+        change_colors(value.lower())
+    elif element == "temperature":
+        temperature.config(text=value)
+    elif element == "color":
+        change_colors(value.lower())
 
 class Consumer(threading.Thread):
 
@@ -292,10 +302,10 @@ class Consumer(threading.Thread):
                 print(list(q.queue))
                 consume_q(c)
 
-def play_video(place, scent, temperature):
+def play_video(place, perfume, temperature):
     sim.load_video(place)
-    set_GUI("speed", "normal")
-    set_GUI("scent", scent)
+    set_GUI("speed", change_speed(1))   # normal speed
+    set_GUI("perfume", perfume)
     set_GUI("temperature", temperature)
 
 vui = VUI()
@@ -336,21 +346,21 @@ root.columnconfigure(5, weight=1)
 
 speed_lb = Label(top_frame, text='Speed: ',
                  font=('Helvetica', 12), justify='left')
-speed = Label(top_frame, text='        ', padx=20,
+speed = Label(top_frame, text='     ',
               font=('Helvetica', 12), justify='left')
-scents_lb = Label(top_frame, text='Scent: ', padx=20,
+perfumes_lb = Label(top_frame, text='Perfume: ', padx=20,
                   font=('Helvetica', 12), justify='left')
-scent = Label(top_frame, text='         ', padx=20,
+perfume = Label(top_frame, text='           ',
               font=('Helvetica', 12), justify='left')
-temperature_lb = Label(top_frame, text="Temp: ", padx=20,
+temperature_lb = Label(top_frame, text="Temp: ",
                        font=('Helvetica', 12), justify='left')
-temperature = Label(top_frame, text='         ', padx=20,
+temperature = Label(top_frame, text='      ', padx=20,
                     font=('Helvetica', 12), justify='left')
 
 speed_lb.grid(row=0, column=0)
 speed.grid(row=0, column=1)
-scents_lb.grid(row=0, column=2)
-scent.grid(row=0, column=3)
+perfumes_lb.grid(row=0, column=2)
+perfume.grid(row=0, column=3)
 temperature_lb.grid(row=0, column=4)
 temperature.grid(row=0, column=5)
 
@@ -382,20 +392,20 @@ rt2 = Radiobutton(center_frame, text='Medium', value='medium', variable=radioTem
                                                                                                     column=1)
 rt3 = Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=1)
 
-radioScentValue = StringVar(value="Peaches")
-labelSim = Label(center_frame, text="Scent").grid(row=0, column=2)
-rsc1 = Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioScentValue).grid(row=1,
+radioperfumeValue = StringVar(value="Peaches")
+labelSim = Label(center_frame, text="perfume").grid(row=0, column=2)
+rsc1 = Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioperfumeValue).grid(row=1,
                                                                                                  column=2)
-rsc2 = Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioScentValue).grid(row=2,
+rsc2 = Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioperfumeValue).grid(row=2,
                                                                                                     column=2)
-rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioScentValue).grid(row=3, column=2)
-rsc4 = Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioScentValue).grid(row=4,
+rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=2)
+rsc4 = Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
                                                                                                      column=2)
 
 buttonConfirm = Button(
     center_frame,
     text="Confirm selection",
-    command=lambda: play_video(radioSimulationValue.get(), radioScentValue.get(), radioTemperatureValue.get()))
+    command=lambda: play_video(radioSimulationValue.get(), radioperfumeValue.get(), radioTemperatureValue.get()))
 buttonConfirm.grid(row=6, column=1)
 
 # Configure btm_frame  rows and columns

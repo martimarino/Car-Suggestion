@@ -69,6 +69,18 @@ def load_video(place):
     player.set_media(m)
     player.play()
 
+def change_speed(value):
+    if value == 1:
+        window['speed'].update(str(random.randint(40, 60)) + ' km/h')
+    elif value == 0.5:
+        window['speed'].update(str(random.randint(20, 40)) + ' km/h')
+    elif value == 0.25:
+        window['speed'].update(str(random.randint(10, 20)) + ' km/h')
+    elif value == 2:
+        window['speed'].update(str(random.randint(60, 80)) + ' km/h')
+    elif value == 4:
+        window['speed'].update(str(random.randint(80, 100)) + ' km/h')
+
 def voice_rec():
     m = sr.Microphone()
     with m as source:
@@ -101,13 +113,17 @@ def voice_rec():
 
             if 'slow' in voice_data or 'slower' in voice_data or 'low' in voice_data:
                 slow = voice_data.replace('slow', '')
-                player.set_rate(player.get_rate() / 2)
+                value = player.get_rate() / 2
+                player.set_rate(value)
+                change_speed(value)
                 window['output'].update(slow)
                 return
 
             if 'fast' in voice_data or 'faster' in voice_data:
                 fast = voice_data.replace('fast', '')
-                player.set_rate(player.get_rate() * 2)
+                value = player.get_rate() * 2
+                player.set_rate(value)
+                change_speed(value)
                 window['output'].update(fast)
                 return
 
@@ -144,15 +160,17 @@ def voice_rec():
 def change_colors(value):
 
     if "peaches" in value:
-        window['-CANVAS-'].update(background_color='#FFCBA4')
+        window.close()
+        sg.theme("Purple")
+        # window = sg.Window('Car Suggestion', layout, finalize=True, icon='./img/icon.ico')
+        # window['-CANVAS-'].update(background_color='#FFCBA4')
     elif "lavender" in value:
         window['-CANVAS-'].update(background_color='#CBC3E3')
-
     elif "cloves" in value:
         window['-CANVAS-'].update(background_color='#654321')
-
     elif "mushrooms" in value:
         window['-CANVAS-'].update(background_color='#013220')
+
 
 def set_GUI(element, value):
 
