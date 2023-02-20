@@ -280,16 +280,12 @@ def set_speed_label_value(value):
 def change_colors(value):
     if "peaches" in value:
         root.config(background="#FFCBA4")
-        center_frame.config(background="#FFCBA4")
     elif "lavender" in value:
         root.config(background="#DCD0FF")
-        center_frame.config(background="#DCD0FF")
     elif "cloves" in value:
         root.config(background="#A75C3A")
-        center_frame.config(background="#A75C3A")
     elif "mushrooms" in value:
         root.config(background="#D8CCC0")
-        center_frame.config(background="#D8CCC0")
 
 def set_GUI(element, value):
 
@@ -335,8 +331,8 @@ time.sleep(2)
 # Configure root params
 root = Tk()
 root.title("Car Suggestion")
-root.geometry('450x550+300+50')
-root.resizable(False, False)
+root.geometry('500x550+300+50')
+# root.resizable(False, False)
 root.iconbitmap('img/logo.ico')
 root.config(bg="#90EE90")
 
@@ -347,16 +343,16 @@ root.rowconfigure(2, weight=1)
 root.columnconfigure(0, weight=1)
 
 top_frame = Frame(root, padx=20)
-center_frame = Frame(root, padx=20, bg='#90EE90')
+center_frame = Frame(root, padx=20, bg='white')
 btm_frame = Frame(root, padx=20, bg='#D3D3D3')
 
 # top_frame
-root.columnconfigure(0, weight=1)
-root.columnconfigure(1, weight=1)
-root.columnconfigure(2, weight=1)
-root.columnconfigure(3, weight=1)
-root.columnconfigure(4, weight=1)
-root.columnconfigure(5, weight=1)
+top_frame.columnconfigure(0, weight=1)
+top_frame.columnconfigure(1, weight=1)
+top_frame.columnconfigure(2, weight=1)
+top_frame.columnconfigure(3, weight=1)
+top_frame.columnconfigure(4, weight=1)
+top_frame.columnconfigure(5, weight=1)
 
 speed_lb = Label(top_frame, text='Speed: ',
                  font=('Helvetica', 12), justify='left')
@@ -385,6 +381,7 @@ center_frame.rowconfigure(2, weight=1)
 center_frame.rowconfigure(3, weight=1)
 center_frame.rowconfigure(4, weight=1)
 center_frame.rowconfigure(5, weight=1)
+center_frame.rowconfigure(6, weight=1)
 center_frame.columnconfigure(0, weight=2)
 center_frame.columnconfigure(1, weight=1)
 center_frame.columnconfigure(2, weight=1)
@@ -402,33 +399,33 @@ Radiobutton(center_frame, text='Forest', value='forest', variable=radioSimulatio
                                                                                              sticky="W")
 
 radioTemperatureValue = StringVar(value="Medium")
-labelTemp = Label(center_frame, text="Temperature:").grid(row=0, column=1, sticky="W")
-rt1 = Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=1,
+Label(center_frame, text="Temperature:").grid(row=0, column=1, sticky="W")
+Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=1,
+                                                                                        sticky="W")
+Radiobutton(center_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2,
+                                                                                              column=1,
                                                                                               sticky="W")
-rt2 = Radiobutton(center_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2,
-                                                                                                    column=1,
-                                                                                                    sticky="W")
-rt3 = Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=1,
-                                                                                                sticky="W")
+Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=1,
+                                                                                          sticky="W")
 
 radioperfumeValue = StringVar(value="Peaches")
-labelSim = Label(center_frame, text="Perfume:").grid(row=0, column=2, sticky="W")
-rsc1 = Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioperfumeValue).grid(row=1,
-                                                                                                 column=2, sticky="W")
-rsc2 = Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioperfumeValue).grid(row=2,
-                                                                                                    column=2,
-                                                                                                      sticky="W")
-rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=2,
-                                                                                                  sticky="W")
-rsc4 = Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
-                                                                                                     column=2,
-                                                                                                       sticky="W")
+Label(center_frame, text="Perfume:").grid(row=0, column=2, sticky="W")
+Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioperfumeValue).grid(row=1,
+                                                                                            column=2, sticky="W")
+Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioperfumeValue).grid(row=2,
+                                                                                               column=2,
+                                                                                               sticky="W")
+Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=2,
+                                                                                           sticky="W")
+Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
+                                                                                                column=2,
+                                                                                                sticky="W")
 
 buttonConfirm = Button(
     center_frame,
     text="Confirm selection",
     command=lambda: play_video(radioSimulationValue.get(), radioperfumeValue.get(), radioTemperatureValue.get()))
-buttonConfirm.grid(row=6, column=1)
+buttonConfirm.grid(row=6, column=1, sticky="W")
 
 # Configure btm_frame  rows and columns
 
