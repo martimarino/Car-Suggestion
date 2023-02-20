@@ -204,13 +204,14 @@ class VUI(threading.Thread):
         if "stop" in command or "close" in command:
             if not q.full():
                 q.put(["stop", "stop"])
+            self.narrate('stop')
         else:
             return
 
 
 def consume_q(c):
     print("CONSUME", c)
-    voice_feedback.config(text=c[0] + c[1])
+    voice_feedback.config(text=c[1])
     if c[0] == "change":
         sim.load_video(c[1])
         if "sea" in c[1]:
@@ -342,7 +343,7 @@ time.sleep(2)
 # Configure root params
 root = Tk()
 root.title("Car Suggestion")
-root.geometry('550x600+300+50')
+root.geometry('500x500+300+50')
 # root.resizable(False, False)
 root.iconbitmap('img/logo.ico')
 root.config(bg="#90EE90")
@@ -386,54 +387,53 @@ temperature_lb.grid(row=0, column=4)
 temperature.grid(row=0, column=5)
 
 # center_frame
-center_frame.rowconfigure(0, weight=2)
+center_frame.rowconfigure(0, weight=1)
 center_frame.rowconfigure(1, weight=1)
 center_frame.columnconfigure(0, weight=1)
 center_frame.columnconfigure(1, weight=1)
 center_frame.columnconfigure(2, weight=1)
 
-scenario_frame = Frame(center_frame, bg="white")
-scenario_frame.grid(row=0, column=0, sticky=NS)
-perfume_frame = Frame(center_frame, bg="white")
-perfume_frame.grid(row=0, column=1, sticky=NS)
-temperature_frame = Frame(center_frame, bg="white")
-temperature_frame.grid(row=0, column=2, sticky=NS)
+scenario_frame = Frame(center_frame, bg="white", width=100)
+scenario_frame.grid(row=0, column=0, sticky=NSEW)
+perfume_frame = Frame(center_frame, bg="white", width=100)
+perfume_frame.grid(row=0, column=1, sticky=NSEW, padx=5)
+temperature_frame = Frame(center_frame, bg="white", width=100)
+temperature_frame.grid(row=0, column=2, sticky=NSEW)
 
 
 radioSimulationValue = StringVar(value="Sea")
 
-Label(scenario_frame, text="Type of simulation:").grid(row=0, column=0, sticky="W")
-Radiobutton(scenario_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=0, sticky="W")
-Radiobutton(scenario_frame, text='Mountain', value='mountain', variable=radioSimulationValue).grid(row=2, column=0,
-                                                                                                 sticky="W")
-Radiobutton(scenario_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=0, sticky="W")
-Radiobutton(scenario_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=0,
-                                                                                               sticky="W")
-Radiobutton(scenario_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=0,
-                                                                                             sticky="W")
+Label(scenario_frame, text="Type of simulation:", bg="white").grid(row=0, column=0, sticky="W", ipadx=20, ipady=20)
+Radiobutton(scenario_frame, text='Sea', value='sea', variable=radioSimulationValue, bg="white")\
+    .grid(row=1, column=0, sticky="W", ipadx=20)
+Radiobutton(scenario_frame, text='Mountain', value='mountain', variable=radioSimulationValue, bg="white")\
+    .grid(row=2, column=0, sticky="W", ipadx=20)
+Radiobutton(scenario_frame, text='City', value='city', variable=radioSimulationValue, bg="white")\
+    .grid(row=3, column=0, sticky="W",ipadx=20)
+Radiobutton(scenario_frame, text='Highway', value='highway', variable=radioSimulationValue, bg="white")\
+    .grid(row=4, column=0, sticky="W", ipadx=20)
+Radiobutton(scenario_frame, text='Forest', value='forest', variable=radioSimulationValue, bg="white")\
+    .grid(row=5, column=0, sticky="W", ipadx=20)
 
 radioperfumeValue = StringVar(value="Peaches")
-Label(perfume_frame, text="Perfume:").grid(row=0, column=0, sticky="W")
-Radiobutton(perfume_frame, text='Peaches', value='peaches', variable=radioperfumeValue).grid(row=1,
-                                                                                            column=0, sticky="W")
-Radiobutton(perfume_frame, text='Lavender ', value='lavender', variable=radioperfumeValue).grid(row=2,
-                                                                                               column=0,
-                                                                                               sticky="W")
-Radiobutton(perfume_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=0,
-                                                                                           sticky="W")
-Radiobutton(perfume_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
-                                                                                                column=0,
-                                                                            sticky="W")
+Label(perfume_frame, text="Perfume:", bg="white").grid(row=0, column=0, sticky="W", ipadx=20, ipady=20)
+Radiobutton(perfume_frame, text='Peaches', value='peaches', variable=radioperfumeValue, bg="white")\
+    .grid(row=1, column=0, sticky="W",  ipadx=20)
+Radiobutton(perfume_frame, text='Lavender ', value='lavender', variable=radioperfumeValue, bg="white")\
+    .grid(row=2, column=0, sticky="W",  ipadx=20)
+Radiobutton(perfume_frame, text='Cloves ', value='cloves', variable=radioperfumeValue, bg="white")\
+    .grid(row=3, column=0,  sticky="W", ipadx=20)
+Radiobutton(perfume_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue, bg="white")\
+    .grid(row=4, column=0, sticky="W", ipadx=20)
 
 radioTemperatureValue = StringVar(value="Medium")
-Label(temperature_frame, text="Temperature:").grid(row=0, column=0, sticky="W")
-Radiobutton(temperature_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=0,
-                                                                                        sticky="W")
-Radiobutton(temperature_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2,
-                                                                                              column=0,
-                                                                                              sticky="W")
-Radiobutton(temperature_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=0,
-                                                                                          sticky="W")
+Label(temperature_frame, text="Temperature:     ", bg="white").grid(row=0, column=0, sticky="W", ipadx=20, ipady=20)
+Radiobutton(temperature_frame, text='Low', value='low', variable=radioTemperatureValue, bg="white")\
+    .grid(row=1, column=0, sticky="W", ipadx=20)
+Radiobutton(temperature_frame, text='Medium', value='medium', variable=radioTemperatureValue, bg="white")\
+    .grid(row=2, column=0, sticky="W", ipadx=20)
+Radiobutton(temperature_frame, text='High', value='high', variable=radioTemperatureValue, bg="white")\
+    .grid(row=3, column=0, sticky="W", ipadx=20)
 
 
 confirm = PhotoImage(file='./img/confirm_text.png')
@@ -443,13 +443,22 @@ buttonConfirm = Button(
     image=confirm, relief="flat",
     bg="#90EE90", activebackground="white",
     command=lambda: play_video(radioSimulationValue.get(), radioperfumeValue.get(), radioTemperatureValue.get()))
-buttonConfirm.grid(row=1, column=1, sticky="W")
+buttonConfirm.grid(row=1, column=1, sticky="EW")
 
 
 # Configure btm_frame  rows and columns
+btm_frame.rowconfigure(0, weight=1)
+btm_frame.rowconfigure(1, weight=1)
+btm_frame.columnconfigure(0, weight=1)
+btm_frame.columnconfigure(1, weight=6)
 
-voice_feedback = Label(btm_frame)
-voice_feedback.grid(row=0, column=0, sticky=EW)
+Label(btm_frame, text="Command received:", fg="white", bg="black").grid(row=0, column=0, sticky=W)
+voice_feedback = Label(btm_frame, fg="white", bg="black")
+voice_feedback.grid(row=0, column=1, sticky=W, pady=5)
+
+Label(btm_frame, text="Emotions recognized:", fg="white", bg="black").grid(row=1, column=0, sticky=W, ipady=5)
+emotions_res = Label(btm_frame, fg="white", bg="black")
+emotions_res.grid(row=1, column=1, sticky=W, pady=5)
 
 top_frame.grid(row=0, sticky=EW)
 center_frame.grid(row=1, sticky=NSEW)
