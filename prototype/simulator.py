@@ -216,6 +216,14 @@ def consume_q(c):
     if c[0] == "change":
         sim.media_player.stop()
         sim.load_video(c[1])
+        if  "sea" in c[1]:
+            set_GUI("perfume", "peaches")
+        if "city" == c[1] or "highway" == c[1]:
+            set_GUI("perfume", "lavender")
+        if "mountain" == c[1]:
+            set_GUI("perfume", "cloves")
+        if  "forest" == c[1]:
+            set_GUI("perfume", "mushrooms")
         q.task_done()
     elif c[0] == "pause":
         sim.play_pause()
@@ -229,7 +237,6 @@ def consume_q(c):
         set_GUI("speed", set_speed_label_value(rate))
         q.task_done()
     elif c[0] == "scenario":
-        
         sim.load_video(c[1])
         set_GUI("speed", set_speed_label_value(1))   # normal speed
         set_GUI("temperature", "medium")
@@ -245,12 +252,13 @@ def consume_q(c):
         q.task_done()
 
     elif c[0] == "perfume":
-        if c[1] in ["peaches", "lavender", "cloves", "mushrooms"]:
+        print("PERFUME CASE", c[1])
+        if c[1].strip() in ["peaches", "lavender", "cloves", "mushrooms"]:
             set_GUI("perfume", c[1])
             q.task_done()
 
     elif c[0] == "temperature":
-        if c[1] in ["low", "medium", "high"]:
+        if c[1].strip() in ["low", "medium", "high"]:
             set_GUI("temperature", c[1])
             q.task_done()
 
