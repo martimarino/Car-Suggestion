@@ -24,10 +24,6 @@ class Simulation(threading.Thread):
         self.scenario = None
         self.status = ""
 
-    def choose_video(self):
-        # .......
-        return
-
     def play_pause(self):
         """ pauses and plays """
         if self.status == "pause":
@@ -65,12 +61,12 @@ class Simulation(threading.Thread):
         self.media_player.audio_set_volume(100)
 
     def speedup(self):
-        rate = self.media_player.get_rate()*2
+        rate = self.media_player.get_rate() * 2
         self.media_player.set_rate(rate)
         return rate
 
     def slowdown(self):
-        rate = self.media_player.get_rate()/2
+        rate = self.media_player.get_rate() / 2
         self.media_player.set_rate(rate)
         return rate
 
@@ -217,13 +213,13 @@ def consume_q(c):
     voice_feedback.config(text=c[0] + c[1])
     if c[0] == "change":
         sim.load_video(c[1])
-        if  "sea" in c[1]:
+        if "sea" in c[1]:
             set_GUI("perfume", "peaches")
         if "city" == c[1] or "highway" == c[1]:
             set_GUI("perfume", "lavender")
         if "mountain" == c[1]:
             set_GUI("perfume", "cloves")
-        if  "forest" == c[1]:
+        if "forest" == c[1]:
             set_GUI("perfume", "mushrooms")
         q.task_done()
     elif c[0] == "pause":
@@ -239,16 +235,16 @@ def consume_q(c):
         q.task_done()
     elif c[0] == "scenario":
         sim.load_video(c[1])
-        set_GUI("speed", set_speed_label_value(1))   # normal speed
+        set_GUI("speed", set_speed_label_value(1))  # normal speed
         set_GUI("temperature", "medium")
 
-        if  "sea" in c[1]:
+        if "sea" in c[1]:
             set_GUI("perfume", "peaches")
         if "city" == c[1] or "highway" == c[1]:
             set_GUI("perfume", "lavender")
         if "mountain" == c[1]:
             set_GUI("perfume", "cloves")
-        if  "forest" == c[1]:
+        if "forest" == c[1]:
             set_GUI("perfume", "mushrooms")
         q.task_done()
 
@@ -267,6 +263,7 @@ def consume_q(c):
         sim.status = "stop"
         sim.media_player.stop()
 
+
 def set_speed_label_value(value):
     if value == 1:
         return str(random.randint(40, 60)) + ' km/h'
@@ -279,18 +276,27 @@ def set_speed_label_value(value):
     elif value == 4:
         return str(random.randint(80, 100)) + ' km/h'
 
+
 def change_colors(value):
     if "peaches" in value:
         root.config(background="#FFCBA4")
+        center_frame.config(background="#FFCBA4")
+        buttonConfirm.config(background="#FFCBA4")
     elif "lavender" in value:
         root.config(background="#DCD0FF")
+        center_frame.config(background="#DCD0FF")
+        buttonConfirm.config(background="#DCD0FF")
     elif "cloves" in value:
         root.config(background="#A75C3A")
+        center_frame.config(background="#A75C3A")
+        buttonConfirm.config(background="#A75C3A")
     elif "mushrooms" in value:
         root.config(background="#D8CCC0")
+        center_frame.config(background="#D8CCC0")
+        buttonConfirm.config(background="#D8CCC0")
+
 
 def set_GUI(element, value):
-
     print(element, value)
     if element == "speed":
         speed.config(text=value)
@@ -303,6 +309,7 @@ def set_GUI(element, value):
     elif element == "color":
         change_colors(value.lower())
 
+
 class Consumer(threading.Thread):
 
     def run(self):
@@ -314,11 +321,13 @@ class Consumer(threading.Thread):
                 print(list(q.queue))
                 consume_q(c)
 
+
 def play_video(place, perfume, temperature):
     sim.load_video(place)
-    set_GUI("speed", set_speed_label_value(1))   # normal speed
+    set_GUI("speed", set_speed_label_value(1))  # normal speed
     set_GUI("perfume", perfume)
     set_GUI("temperature", temperature)
+
 
 vui = VUI()
 vui.daemon = True
@@ -340,13 +349,13 @@ root.config(bg="#90EE90")
 
 # Configure root rows and columns
 root.rowconfigure(0, weight=1)
-root.rowconfigure(1, weight=2)
+root.rowconfigure(1, weight=1)
 root.rowconfigure(2, weight=1)
 root.columnconfigure(0, weight=1)
 
 top_frame = Frame(root, padx=20)
-center_frame = Frame(root, padx=20, bg='white')
-btm_frame = Frame(root, padx=20, bg='#D3D3D3')
+center_frame = Frame(root, padx=20, bg='#90EE90')
+btm_frame = Frame(root, padx=20, pady=10, bg='black')
 
 # top_frame
 top_frame.columnconfigure(0, weight=1)
@@ -377,59 +386,65 @@ temperature_lb.grid(row=0, column=4)
 temperature.grid(row=0, column=5)
 
 # center_frame
-center_frame.rowconfigure(0, weight=1)
+center_frame.rowconfigure(0, weight=2)
 center_frame.rowconfigure(1, weight=1)
-center_frame.rowconfigure(2, weight=1)
-center_frame.rowconfigure(3, weight=1)
-center_frame.rowconfigure(4, weight=1)
-center_frame.rowconfigure(5, weight=1)
-center_frame.rowconfigure(6, weight=1)
-center_frame.columnconfigure(0, weight=2)
+center_frame.columnconfigure(0, weight=1)
 center_frame.columnconfigure(1, weight=1)
 center_frame.columnconfigure(2, weight=1)
 
+scenario_frame = Frame(center_frame, bg="white")
+scenario_frame.grid(row=0, column=0, sticky=NS)
+perfume_frame = Frame(center_frame, bg="white")
+perfume_frame.grid(row=0, column=1, sticky=NS)
+temperature_frame = Frame(center_frame, bg="white")
+temperature_frame.grid(row=0, column=2, sticky=NS)
+
+
 radioSimulationValue = StringVar(value="Sea")
 
-Label(center_frame, text="Type of simulation:").grid(row=0, column=0, sticky="W")
-Radiobutton(center_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=0, sticky="W")
-Radiobutton(center_frame, text='Mountain', value='mountain', variable=radioSimulationValue).grid(row=2, column=0,
+Label(scenario_frame, text="Type of simulation:").grid(row=0, column=0, sticky="W")
+Radiobutton(scenario_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=0, sticky="W")
+Radiobutton(scenario_frame, text='Mountain', value='mountain', variable=radioSimulationValue).grid(row=2, column=0,
                                                                                                  sticky="W")
-Radiobutton(center_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=0, sticky="W")
-Radiobutton(center_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=0,
+Radiobutton(scenario_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=0, sticky="W")
+Radiobutton(scenario_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=0,
                                                                                                sticky="W")
-Radiobutton(center_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=0,
+Radiobutton(scenario_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=0,
                                                                                              sticky="W")
 
+radioperfumeValue = StringVar(value="Peaches")
+Label(perfume_frame, text="Perfume:").grid(row=0, column=0, sticky="W")
+Radiobutton(perfume_frame, text='Peaches', value='peaches', variable=radioperfumeValue).grid(row=1,
+                                                                                            column=0, sticky="W")
+Radiobutton(perfume_frame, text='Lavender ', value='lavender', variable=radioperfumeValue).grid(row=2,
+                                                                                               column=0,
+                                                                                               sticky="W")
+Radiobutton(perfume_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=0,
+                                                                                           sticky="W")
+Radiobutton(perfume_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
+                                                                                                column=0,
+                                                                            sticky="W")
+
 radioTemperatureValue = StringVar(value="Medium")
-Label(center_frame, text="Temperature:").grid(row=0, column=1, sticky="W")
-Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=1,
+Label(temperature_frame, text="Temperature:").grid(row=0, column=0, sticky="W")
+Radiobutton(temperature_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=0,
                                                                                         sticky="W")
-Radiobutton(center_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2,
-                                                                                              column=1,
+Radiobutton(temperature_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2,
+                                                                                              column=0,
                                                                                               sticky="W")
-Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=1,
+Radiobutton(temperature_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=0,
                                                                                           sticky="W")
 
-radioperfumeValue = StringVar(value="Peaches")
-Label(center_frame, text="Perfume:").grid(row=0, column=2, sticky="W")
-Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioperfumeValue).grid(row=1,
-                                                                                            column=2, sticky="W")
-Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioperfumeValue).grid(row=2,
-                                                                                               column=2,
-                                                                                               sticky="W")
-Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=2,
-                                                                                           sticky="W")
-Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
-                                                                                                column=2,
-                                                                            sticky="W")
+
 confirm = PhotoImage(file='./img/confirm_text.png')
 buttonConfirm = Button(
     center_frame,
     text="Confirm selection",
     image=confirm, relief="flat",
-    bg="white", activebackground="white",
+    bg="#90EE90", activebackground="white",
     command=lambda: play_video(radioSimulationValue.get(), radioperfumeValue.get(), radioTemperatureValue.get()))
-buttonConfirm.grid(row=6, column=1, sticky="W")
+buttonConfirm.grid(row=1, column=1, sticky="W")
+
 
 # Configure btm_frame  rows and columns
 
