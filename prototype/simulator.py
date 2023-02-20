@@ -216,11 +216,11 @@ def consume_q(c):
         sim.load_video(c[1])
         if "sea" in c[1]:
             set_GUI("perfume", "peaches")
-        if "city" == c[1] or "highway" == c[1]:
+        if "city" in c[1] or "highway" in c[1]:
             set_GUI("perfume", "lavender")
-        if "mountain" == c[1]:
+        if "mountain" in c[1]:
             set_GUI("perfume", "cloves")
-        if "forest" == c[1]:
+        if "forest" in c[1]:
             set_GUI("perfume", "mushrooms")
         q.task_done()
     elif c[0] == "pause":
@@ -241,11 +241,11 @@ def consume_q(c):
 
         if "sea" in c[1]:
             set_GUI("perfume", "peaches")
-        if "city" == c[1] or "highway" == c[1]:
+        if "city" in c[1] or "highway" in c[1]:
             set_GUI("perfume", "lavender")
-        if "mountain" == c[1]:
+        if "mountain" in c[1]:
             set_GUI("perfume", "cloves")
-        if "forest" == c[1]:
+        if "forest" in c[1]:
             set_GUI("perfume", "mushrooms")
         q.task_done()
 
