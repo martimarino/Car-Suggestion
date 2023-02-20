@@ -10,5 +10,8 @@ Download or fork the repository and run <b>GUI.py</b>.
 ### Prerequisites
 
 <b>Python 3</b> and <b>pip</b> must be installed in your computer.
-pip install pysimplegui
+pip install keras
+pip install python-opencv
+pip install speech_recognition
+pip install tensorflow
 

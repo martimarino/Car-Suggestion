@@ -267,7 +267,8 @@ class VUI(threading.Thread):
 
 def consume_q(c):
     print("CONSUME", c)
-    voice_feedback.config(text=c[1])
+    if c[0] != 'total_rate':
+        voice_feedback.config(text=c[1])
     if c[0] == "change":
         sim.load_video(c[1])
         if "sea" in c[1]:
@@ -324,6 +325,7 @@ def consume_q(c):
 
     elif c[0] == "total_rate":
         print(c[1])
+        emotions_res.config(text=c[1])
 
 
 
@@ -518,7 +520,7 @@ Label(btm_frame, text="Command received:", fg="white", bg="black").grid(row=0, c
 voice_feedback = Label(btm_frame, fg="white", bg="black")
 voice_feedback.grid(row=0, column=1, sticky=W, pady=5)
 
-Label(btm_frame, text="Emotions recognized:", fg="white", bg="black").grid(row=1, column=0, sticky=W, ipady=5)
+Label(btm_frame, text="Positive emotions (%):", fg="white", bg="black").grid(row=1, column=0, sticky=W, ipady=5)
 emotions_res = Label(btm_frame, fg="white", bg="black")
 emotions_res.grid(row=1, column=1, sticky=W, pady=5)
 
