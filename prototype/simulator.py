@@ -245,12 +245,14 @@ def consume_q(c):
         q.task_done()
 
     elif c[0] == "perfume":
-        set_GUI("perfume", c[1])
-        q.task_done()
+        if c[1] in ["peaches", "lavender", "cloves", "mushrooms"]:
+            set_GUI("perfume", c[1])
+            q.task_done()
 
     elif c[0] == "temperature":
-        set_GUI("temperature", c[1])
-        q.task_done()
+        if c[1] in ["low", "medium", "high"]:
+            set_GUI("temperature", c[1])
+            q.task_done()
 
     elif c[0] == "stop":
         sim.media_player.stop()
@@ -350,15 +352,15 @@ root.columnconfigure(5, weight=1)
 
 speed_lb = Label(top_frame, text='Speed: ',
                  font=('Helvetica', 12), justify='left')
-speed = Label(top_frame, text='       ',
+speed = Label(top_frame, text='            ',
               font=('Helvetica', 12), justify='left')
 perfumes_lb = Label(top_frame, text='   Perfume: ',
                   font=('Helvetica', 12), justify='left')
-perfume = Label(top_frame, text='           ',
+perfume = Label(top_frame, text='              ',
               font=('Helvetica', 12), justify='left')
 temperature_lb = Label(top_frame, text="   Temp: ",
                        font=('Helvetica', 12), justify='left')
-temperature = Label(top_frame, text='    ',
+temperature = Label(top_frame, text='              ',
                     font=('Helvetica', 12), justify='left')
 
 speed_lb.grid(row=0, column=0)
