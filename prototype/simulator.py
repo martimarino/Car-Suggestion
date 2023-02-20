@@ -63,10 +63,14 @@ class Simulation(threading.Thread):
         self.media_player.audio_set_volume(100)
 
     def speedup(self):
-        self.media_player.set_rate(self.media_player.get_rate()*2)
+        rate = self.media_player.get_rate()*2
+        self.media_player.set_rate(rate)
+        return rate
 
     def slowdown(self):
-        self.media_player.set_rate(self.media_player.get_rate()/2)
+        rate = self.media_player.get_rate()/2
+        self.media_player.set_rate(rate)
+        return rate
 
     def run(self):
         return
@@ -217,17 +221,17 @@ def consume_q(c):
         sim.play_pause()
         q.task_done()
     elif c[0] == "slow":
-        sim.slowdown()
-        set_GUI("speed", "low")
+        rate = sim.slowdown()
+        set_GUI("speed", set_speed_label_value(rate))
         q.task_done()
     elif c[0] == "fast":
-        sim.speedup()
-        set_GUI("speed", "high")
+        rate = sim.speedup()
+        set_GUI("speed", set_speed_label_value(rate))
         q.task_done()
     elif c[0] == "scenario":
         
         sim.load_video(c[1])
-        set_GUI("speed", change_speed(1))   # normal speed
+        set_GUI("speed", set_speed_label_value(1))   # normal speed
         set_GUI("temperature", "medium")
 
         if  "sea" in c[1]:
@@ -251,7 +255,7 @@ def consume_q(c):
     elif c[0] == "stop":
         sim.media_player.stop()
 
-def change_speed(value):
+def set_speed_label_value(value):
     if value == 1:
         return str(random.randint(40, 60)) + ' km/h'
     elif value == 0.5:
@@ -304,7 +308,7 @@ class Consumer(threading.Thread):
 
 def play_video(place, perfume, temperature):
     sim.load_video(place)
-    set_GUI("speed", change_speed(1))   # normal speed
+    set_GUI("speed", set_speed_label_value(1))   # normal speed
     set_GUI("perfume", perfume)
     set_GUI("temperature", temperature)
 
@@ -321,7 +325,7 @@ time.sleep(2)
 # Configure root params
 root = Tk()
 root.title("Car Suggestion")
-root.geometry('500x600+300+50')
+root.geometry('450x550+300+50')
 root.resizable(False, False)
 root.iconbitmap('img/logo.ico')
 root.config(bg="#90EE90")
@@ -346,15 +350,15 @@ root.columnconfigure(5, weight=1)
 
 speed_lb = Label(top_frame, text='Speed: ',
                  font=('Helvetica', 12), justify='left')
-speed = Label(top_frame, text='     ',
+speed = Label(top_frame, text='       ',
               font=('Helvetica', 12), justify='left')
-perfumes_lb = Label(top_frame, text='Perfume: ', padx=20,
+perfumes_lb = Label(top_frame, text='   Perfume: ',
                   font=('Helvetica', 12), justify='left')
 perfume = Label(top_frame, text='           ',
               font=('Helvetica', 12), justify='left')
-temperature_lb = Label(top_frame, text="Temp: ",
+temperature_lb = Label(top_frame, text="   Temp: ",
                        font=('Helvetica', 12), justify='left')
-temperature = Label(top_frame, text='      ', padx=20,
+temperature = Label(top_frame, text='    ',
                     font=('Helvetica', 12), justify='left')
 
 speed_lb.grid(row=0, column=0)
@@ -370,37 +374,45 @@ center_frame.rowconfigure(1, weight=1)
 center_frame.rowconfigure(2, weight=1)
 center_frame.rowconfigure(3, weight=1)
 center_frame.rowconfigure(4, weight=1)
+center_frame.rowconfigure(5, weight=1)
 center_frame.columnconfigure(0, weight=2)
 center_frame.columnconfigure(1, weight=1)
 center_frame.columnconfigure(2, weight=1)
-center_frame.columnconfigure(3, weight=1)
 
 radioSimulationValue = StringVar(value="Sea")
 
-Label(center_frame, text="Type of simulation").grid(row=0, column=0)
-Radiobutton(center_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=0)
-Radiobutton(center_frame, text='Mountain', value='mountain', variable=radioSimulationValue).grid(row=2,
-                                                                                                 column=0)
-Radiobutton(center_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=0)
-Radiobutton(center_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=0)
-Radiobutton(center_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=0)
+Label(center_frame, text="Type of simulation:").grid(row=0, column=0, sticky="W")
+Radiobutton(center_frame, text='Sea', value='sea', variable=radioSimulationValue).grid(row=1, column=0, sticky="W")
+Radiobutton(center_frame, text='Mountain', value='mountain', variable=radioSimulationValue).grid(row=2, column=0,
+                                                                                                 sticky="W")
+Radiobutton(center_frame, text='City', value='city', variable=radioSimulationValue).grid(row=3, column=0, sticky="W")
+Radiobutton(center_frame, text='Highway', value='highway', variable=radioSimulationValue).grid(row=4, column=0,
+                                                                                               sticky="W")
+Radiobutton(center_frame, text='Forest', value='forest', variable=radioSimulationValue).grid(row=5, column=0,
+                                                                                             sticky="W")
 
 radioTemperatureValue = StringVar(value="Medium")
-labelTemp = Label(center_frame, text="Temperature").grid(row=0, column=1)
-rt1 = Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=1)
+labelTemp = Label(center_frame, text="Temperature:").grid(row=0, column=1, sticky="W")
+rt1 = Radiobutton(center_frame, text='Low', value='low', variable=radioTemperatureValue).grid(row=1, column=1,
+                                                                                              sticky="W")
 rt2 = Radiobutton(center_frame, text='Medium', value='medium', variable=radioTemperatureValue).grid(row=2,
-                                                                                                    column=1)
-rt3 = Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=1)
+                                                                                                    column=1,
+                                                                                                    sticky="W")
+rt3 = Radiobutton(center_frame, text='High', value='high', variable=radioTemperatureValue).grid(row=3, column=1,
+                                                                                                sticky="W")
 
 radioperfumeValue = StringVar(value="Peaches")
-labelSim = Label(center_frame, text="perfume").grid(row=0, column=2)
+labelSim = Label(center_frame, text="Perfume:").grid(row=0, column=2, sticky="W")
 rsc1 = Radiobutton(center_frame, text='Peaches', value='peaches', variable=radioperfumeValue).grid(row=1,
-                                                                                                 column=2)
+                                                                                                 column=2, sticky="W")
 rsc2 = Radiobutton(center_frame, text='Lavender ', value='lavender', variable=radioperfumeValue).grid(row=2,
-                                                                                                    column=2)
-rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=2)
+                                                                                                    column=2,
+                                                                                                      sticky="W")
+rsc3 = Radiobutton(center_frame, text='Cloves ', value='cloves', variable=radioperfumeValue).grid(row=3, column=2,
+                                                                                                  sticky="W")
 rsc4 = Radiobutton(center_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue).grid(row=4,
-                                                                                                     column=2)
+                                                                                                     column=2,
+                                                                                                       sticky="W")
 
 buttonConfirm = Button(
     center_frame,
