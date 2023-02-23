@@ -4,15 +4,12 @@ import random
 import vlc
 import time
 import queue
-import pyjokes
-import pyttsx3
 import datetime
+import pyttsx3
 import threading
 from tkinter import *
 import speech_recognition as sr
-from keras.models import load_model
 import cv2
-from keras.utils import img_to_array
 import numpy as np
 
 
@@ -23,48 +20,48 @@ class_labels=['Angry','Happy','Neutral','Sad','Surprise']
 class EmotionRecognition(threading.Thread):
     def __init__(self):
         super().__init__()
-        self.classifier = load_model('emotionrecognition/EmotionDetectionModel.h5')
+        # self.classifier = load_model('emotionrecognition/EmotionDetectionModel.h5')
         self.cap=cv2.VideoCapture(0)
         self.stop = False
         self.total = 0
 
     def run(self):
-            nr_positive = 0
-            total_frames = 0
-            while True:
-                ret,frame=self.cap.read()
-                gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-                faces=face_classifier.detectMultiScale(gray,1.3,5)
-
-                for (x,y,w,h) in faces:
-                    cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
-                    roi_gray=gray[y:y+h,x:x+w]
-                    roi_gray=cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
-
-                    if np.sum([roi_gray])!=0:
-                        roi=roi_gray.astype('float')/255.0
-                        roi=img_to_array(roi)
-                        roi=np.expand_dims(roi,axis=0)
-
-                        preds=self.classifier.predict(roi)[0]
-                        label=class_labels[preds.argmax()]
-                        if label == "Happy" or label == "Surprise":
-                            nr_positive += 1
-                        total_frames += 1
-                        print("LABEL: " + label + "PERCENTAGE: " + str(nr_positive/total_frames))
-                        print(self.stop)
-                if self.stop == True:
-                    self.total = nr_positive/total_frames
-                    if not q.full():
-                        q.put(["total_rate", str(self.total)])
-                    break
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    self.total = nr_positive/total_frames
-                    if not q.full():
-                        q.put(["total_rate", str(self.total)])
-                    break
-            self.cap.release()
-            cv2.destroyAllWindows()
+        nr_positive = 0
+        total_frames = 0
+        while True:
+            ret,frame=self.cap.read()
+            # gray=cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+            # faces=face_classifier.detectMultiScale(gray,1.3,5)
+            #
+            # for (x,y,w,h) in faces:
+            #     cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
+            #     roi_gray=gray[y:y+h,x:x+w]
+            #     roi_gray=cv2.resize(roi_gray,(48,48),interpolation=cv2.INTER_AREA)
+            #
+            #     if np.sum([roi_gray])!=0:
+            #         roi=roi_gray.astype('float')/255.0
+            #         roi=img_to_array(roi)
+            #         roi=np.expand_dims(roi,axis=0)
+            #
+            #         preds=self.classifier.predict(roi)[0]
+            #         label=class_labels[preds.argmax()]
+            #         if label == "Happy" or label == "Surprise":
+            #             nr_positive += 1
+            #         total_frames += 1
+            #         print("LABEL: " + label + "PERCENTAGE: " + str(nr_positive/total_frames))
+            #         print(self.stop)
+            if self.stop == True:
+                self.total = nr_positive/total_frames
+                if not q.full():
+                    q.put(["total_rate", str(self.total)])
+                break
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                self.total = nr_positive/total_frames
+                if not q.full():
+                    q.put(["total_rate", str(self.total)])
+                break
+        self.cap.release()
+        cv2.destroyAllWindows()
 
 class Simulation(threading.Thread):
 
@@ -128,7 +125,6 @@ class Simulation(threading.Thread):
 
     def run(self):
         return
-
 
 class VUI(threading.Thread):
 

@@ -15,3 +15,14 @@ pip install python-opencv
 pip install speech_recognition
 pip install tensorflow
 
+Anaconda env:
+
+pip3 install python-vlc
+conda install -c postelrich python-vlc
+
+conda install -c pytorch pytorch
+conda install torch torchvision torchaudio
+conda install -c conda-forge pyjokes
+conda install -c conda-forge speechrecognition
+conda install -c fastai opencv-python-headless
+conda install -c auto pyttsx
