@@ -29,10 +29,10 @@ class EmotionRecognition(threading.Thread):
 
     def run(self):
 
-        self.cap.resolution(480,480)
+        self.cap.resolution = (480, 480)
         try:
             client_socket = socket.socket()
-            client_socket.connect(('192.168.1.141', 8000))
+            client_socket.connect(('192.168.1.129', 8000))
             connection = client_socket.makefile('wb')
             stream = io.BytesIO()
             for foo in self.cap.capture_continuous(stream, 'jpeg'):
@@ -59,9 +59,11 @@ class EmotionRecognition(threading.Thread):
             client_socket.close()
 
             client_socket = socket.socket()
-            client_socket.connect(('192.168.1.141', 8000))
+            client_socket.connect(('192.168.1.129', 8000))
             data = client_socket.recv(1024).decode()
             print('Received response: ' + data)
+            if not q.full():
+                q.put(['total_rate', data])
             client_socket.close()
 
 
@@ -407,7 +409,7 @@ root = Tk()
 root.title("Car Suggestion")
 root.geometry('500x500+300+50')
 # root.resizable(False, False)
-root.iconbitmap('img/logo.ico')
+#root.iconbitmap('img/logo.ico')
 root.config(bg="#90EE90")
 
 # Configure root rows and columns
