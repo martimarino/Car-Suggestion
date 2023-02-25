@@ -7,6 +7,7 @@ video = cv2.VideoCapture(0)  # requisting the input from the webcam or camera
 
 while True:  # checking if are getting video feed and using it
     ret, frame = video.read()
+    print(type(frame))
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     face = face_classifier.detectMultiScale(gray, 1.3, 5)
 
