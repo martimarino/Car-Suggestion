@@ -63,7 +63,6 @@ class EmotionRecognition(threading.Thread):
             data = client_socket.recv(1024).decode()
             print('Received response: ' + data)
             client_socket.close()
-            self.cap.stop_recording()
 
 
 class Simulation(threading.Thread):

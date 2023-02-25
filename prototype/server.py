@@ -1,7 +1,7 @@
 import io
 import socket
 import struct
-
+import math
 import numpy as np
 from PIL import Image
 import cv2
@@ -31,7 +31,7 @@ try:
                                 client, addr = server_socket.accept()
                                 total = nr_positive / total_frames
                                 print(total, nr_positive, total_frames, emotion)
-                                ack = emotion
+                                ack = str(math.trunc(total)*100)
                                 client.send(ack.encode())
                                 break
                         # Construct a stream to hold the image data and read the image
