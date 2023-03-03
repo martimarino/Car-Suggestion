@@ -35,7 +35,7 @@ class EmotionRecognition(threading.Thread):
             client_socket.connect(('192.168.1.129', 8000))
             connection = client_socket.makefile('wb')
             stream = io.BytesIO()
-            for foo in self.cap.capture_continuous(stream, 'jpeg'):
+            for _ in self.cap.capture_continuous(stream, 'jpeg'):
                 # Write the length of the capture to the stream and flush to
                 # ensure it actually gets sent
                 connection.write(struct.pack('<L', stream.tell()))

@@ -1,10 +1,10 @@
 import io
+import math
 import socket
 import struct
-import math
-import numpy as np
-from PIL import Image
+
 import cv2
+from PIL import Image
 from deepface import DeepFace
 
 # Start a socket listening for connections on 0.0.0.0:8000 (0.0.0.0 means
