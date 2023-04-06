@@ -51,7 +51,6 @@ try:
                         image = Image.open(image_stream)
                         print('Image is %dx%d' % image.size)
                         image.save('./img/' + str(i) + '.jpg')
-                        #img_convert = np.array(Image.open('./img/' + str(i) + '.jpg'))
                         img_convert = cv2.imread('./img/' + str(i) + '.jpg')
                         print(type(img_convert))
                         gray = cv2.cvtColor(img_convert, cv2.COLOR_BGR2GRAY)
