@@ -32,10 +32,10 @@ class EmotionRecognition(threading.Thread):
         self.cap.resolution = (480, 480)
         try:
             client_socket = socket.socket()
-            client_socket.connect(('192.168.1.129', 8000))
+            client_socket.connect(('192.168.103.28', 8000))
             connection = client_socket.makefile('wb')
             stream = io.BytesIO()
-            for _ in self.cap.capture_continuous(stream, 'jpeg'):
+            for foo in self.cap.capture_continuous(stream, 'jpeg'):
                 # Write the length of the capture to the stream and flush to
                 # ensure it actually gets sent
                 connection.write(struct.pack('<L', stream.tell()))
@@ -57,9 +57,11 @@ class EmotionRecognition(threading.Thread):
         finally:
             connection.close()
             client_socket.close()
+            
+            self.cap.close()
 
             client_socket = socket.socket()
-            client_socket.connect(('192.168.1.129', 8000))
+            client_socket.connect(('192.168.103.28', 8000))
             data = client_socket.recv(1024).decode()
             print('Received response: ' + data)
             if not q.full():
@@ -173,6 +175,7 @@ class VUI(threading.Thread):
     def run_ada(self):
         """invokes ada and takes command, identifies specific words and makes ada do things"""
         command = self.take_command()
+    
         print('User Command: ' + command)
 
         """Plays song or things on youtube"""
@@ -189,16 +192,21 @@ class VUI(threading.Thread):
             self.narrate('simulating' + place)
             return
 
-        if 'change of scenario to' in command:
-            place = command.replace('change scenario to', '')
+        if 'now to the' in command:
+            place = command.replace('now to the', '')
             print(place)
 
             """ producer code """
             if not q.full():
-                q.put(["change", place])
+                q.put(["stop", "stop"])
+                print("QUEUE VUI: ", list(q.queue))
+            self.narrate('stop')
+            time.sleep(2)
+            if not q.full():
+                q.put(["scenario", place])
                 print("QUEUE VUI: ", list(q.queue))
 
-            self.narrate('change to' + place)
+            self.narrate('simulating' + place)
             return
 
         if 'pause' in command:
@@ -241,9 +249,9 @@ class VUI(threading.Thread):
 
         if 'what' and 'time' in command:  # shares the current time in 24hr format
             print('--------------- 2 -----------')
-            time = datetime.datetime.now().strftime('%H:%M')
-            print(time)
-            self.narrate('Current time is ' + time)
+            clock = datetime.datetime.now().strftime('%H:%M')
+            print(clock)
+            self.narrate('Current time is ' + clock)
             return
 
         if ("joke" or "jokes") in command:  # tells a joke
@@ -254,7 +262,7 @@ class VUI(threading.Thread):
             return
 
         if "bye" in command:
-            self.narrate("Bye bye")
+            self.narrate("bye")
             quit()
 
         if "stop" in command or "close" in command:
@@ -272,13 +280,13 @@ def consume_q(c):
     if c[0] == "change":
         sim.load_video(c[1])
         if "sea" in c[1]:
-            set_GUI("perfume", "peaches")
-        if "city" in c[1] or "highway" in c[1]:
+            set_GUI("perfume", "rose")
+        if "city" in c[1]:
             set_GUI("perfume", "lavender")
         if "mountain" in c[1]:
-            set_GUI("perfume", "cloves")
-        if "forest" in c[1]:
             set_GUI("perfume", "mushrooms")
+        if "highway" in c[1]:
+            set_GUI("perfume", "chocolate")
         q.task_done()
     elif c[0] == "pause":
         sim.play_pause()
@@ -297,23 +305,23 @@ def consume_q(c):
         set_GUI("temperature", "medium")
 
         if "sea" in c[1]:
-            set_GUI("perfume", "peaches")
-        if "city" in c[1] or "highway" in c[1]:
+            set_GUI("perfume", "rose")
+        if "city" in c[1]:
             set_GUI("perfume", "lavender")
         if "mountain" in c[1]:
-            set_GUI("perfume", "cloves")
-        if "forest" in c[1]:
             set_GUI("perfume", "mushrooms")
+        if "highway" in c[1]:
+            set_GUI("perfume", "chocolate")
         q.task_done()
 
     elif c[0] == "perfume":
         print("PERFUME CASE", c[1])
-        if c[1].strip() in ["peaches", "lavender", "cloves", "mushrooms"]:
+        if c[1].strip() in ["rose", "lavender", "chocolate", "mushrooms"]:
             set_GUI("perfume", c[1])
             q.task_done()
 
     elif c[0] == "temperature":
-        if c[1].strip() in ["low", "medium", "high"]:
+        if c[1].strip() in ["cold", "medium", "hot"]:
             set_GUI("temperature", c[1])
             q.task_done()
 
@@ -322,6 +330,15 @@ def consume_q(c):
         sim.media_player.stop()
         sim.emotion.stop = True
         sim.emotion = None
+        
+    elif c[0] == "bye":
+        sim.status = "stop"
+        sim.media_player.stop()
+        sim.emotion.stop = True
+        sim.emotion = None
+        import sys
+        sys.exit()
+
 
     elif c[0] == "total_rate":
         print(c[1])
@@ -343,7 +360,7 @@ def set_speed_label_value(value):
 
 
 def change_colors(value):
-    if "peaches" in value:
+    if "rose" in value:
         root.config(background="#FFCBA4")
         center_frame.config(background="#FFCBA4")
         buttonConfirm.config(background="#FFCBA4")
@@ -351,7 +368,7 @@ def change_colors(value):
         root.config(background="#DCD0FF")
         center_frame.config(background="#DCD0FF")
         buttonConfirm.config(background="#DCD0FF")
-    elif "cloves" in value:
+    elif "chocolate" in value:
         root.config(background="#A75C3A")
         center_frame.config(background="#A75C3A")
         buttonConfirm.config(background="#A75C3A")
@@ -409,7 +426,7 @@ root = Tk()
 root.title("Car Suggestion")
 root.geometry('500x500+300+50')
 # root.resizable(False, False)
-#root.iconbitmap('img/logo.ico')
+# root.iconbitmap('img/logo.ico')
 root.config(bg="#90EE90")
 
 # Configure root rows and columns
@@ -476,27 +493,25 @@ Radiobutton(scenario_frame, text='City', value='city', variable=radioSimulationV
     .grid(row=3, column=0, sticky="W",ipadx=20)
 Radiobutton(scenario_frame, text='Highway', value='highway', variable=radioSimulationValue, bg="white")\
     .grid(row=4, column=0, sticky="W", ipadx=20)
-Radiobutton(scenario_frame, text='Forest', value='forest', variable=radioSimulationValue, bg="white")\
-    .grid(row=5, column=0, sticky="W", ipadx=20)
 
-radioperfumeValue = StringVar(value="Peaches")
+radioperfumeValue = StringVar(value="Rose")
 Label(perfume_frame, text="Perfume:", bg="white").grid(row=0, column=0, sticky="W", ipadx=20, ipady=20)
-Radiobutton(perfume_frame, text='Peaches', value='peaches', variable=radioperfumeValue, bg="white")\
+Radiobutton(perfume_frame, text='Rose', value='rose', variable=radioperfumeValue, bg="white")\
     .grid(row=1, column=0, sticky="W",  ipadx=20)
 Radiobutton(perfume_frame, text='Lavender ', value='lavender', variable=radioperfumeValue, bg="white")\
     .grid(row=2, column=0, sticky="W",  ipadx=20)
-Radiobutton(perfume_frame, text='Cloves ', value='cloves', variable=radioperfumeValue, bg="white")\
+Radiobutton(perfume_frame, text='Chocolate ', value='chocolate', variable=radioperfumeValue, bg="white")\
     .grid(row=3, column=0,  sticky="W", ipadx=20)
 Radiobutton(perfume_frame, text='Mushrooms', value='mushrooms', variable=radioperfumeValue, bg="white")\
     .grid(row=4, column=0, sticky="W", ipadx=20)
 
 radioTemperatureValue = StringVar(value="Medium")
 Label(temperature_frame, text="Temperature:     ", bg="white").grid(row=0, column=0, sticky="W", ipadx=20, ipady=20)
-Radiobutton(temperature_frame, text='Low', value='low', variable=radioTemperatureValue, bg="white")\
+Radiobutton(temperature_frame, text='Cold', value='cold', variable=radioTemperatureValue, bg="white")\
     .grid(row=1, column=0, sticky="W", ipadx=20)
 Radiobutton(temperature_frame, text='Medium', value='medium', variable=radioTemperatureValue, bg="white")\
     .grid(row=2, column=0, sticky="W", ipadx=20)
-Radiobutton(temperature_frame, text='High', value='high', variable=radioTemperatureValue, bg="white")\
+Radiobutton(temperature_frame, text='Hot', value='hot', variable=radioTemperatureValue, bg="white")\
     .grid(row=3, column=0, sticky="W", ipadx=20)
 
 
