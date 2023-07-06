@@ -1,4 +1,4 @@
-# Car Suggestion
+# Car Suggestion - prototype
 
 Car Suggestion is a software that simulate a driving customized experience.
 It supports voice commands to interact with the GUI. 
